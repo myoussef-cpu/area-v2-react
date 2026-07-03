@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { usePendingSave } from '../../shared/store/pending-save-store';
 import { Ruler, Calculator, Mountain } from 'lucide-react';
 import { Card } from '../../shared/ui/card';
 import { Input } from '../../shared/ui/input';
@@ -10,7 +11,7 @@ import type { ToolProps, CalculationData } from '../../shared/types';
 
 export default function LandLeveling({ onSave }: ToolProps) {
   const [inputs, setInputs] = useState<Record<string, string>>({});
-  const [result, setResult] = useState<{ value: string; details: string } | null>(null);
+  const [result, setResult] = useState<{ value: string; details: string; rawValue?: number } | null>(null);
   const { formatVolume } = useUnits();
 
   const handleInput = (key: string, value: string) => {
@@ -25,9 +26,20 @@ export default function LandLeveling({ onSave }: ToolProps) {
     const diff = orig - req;
     const volume = Math.abs(diff) * area;
     const type = diff > 0 ? 'حفر (Cut)' : 'ردم (Fill)';
+    const __v = formatVolume(volume);
     setResult({
-      value: formatVolume(volume),
+      value: __v,
       details: `الفرق في المناسيب = ${toFixed(orig)} - ${toFixed(req)} = ${toFixed(diff)} م\nمساحة الأرض = ${toFixed(area)} م²\nحجم ال${diff > 0 ? 'حفر' : 'ردم'} = ${toFixed(Math.abs(diff))} × ${toFixed(area)} = ${toFixed(volume)} م³\nالنوع: ${type}`,
+      rawValue: volume,
+    });
+    usePendingSave.getState().set({
+      toolId: 'land-leveling',
+      toolName: 'تسوية الأرض',
+      inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+      result: __v,
+      details: `الفرق في المناسيب = ${toFixed(orig)} - ${toFixed(req)} = ${toFixed(diff)} م\nمساحة الأرض = ${toFixed(area)} م²\nحجم ال${diff > 0 ? 'حفر' : 'ردم'} = ${toFixed(Math.abs(diff))} × ${toFixed(area)} = ${toFixed(volume)} م³\nالنوع: ${type}`,
+      unit: 'م³',
+      timestamp: Date.now(),
     });
   };
 
@@ -53,7 +65,7 @@ export default function LandLeveling({ onSave }: ToolProps) {
         <Button onClick={calculate} className="w-full mt-4">حساب</Button>
       </Card>
       {result && (
-        <ResultCard title="النتيجة" result={result.value} details={result.details} onSave={handleSave} icon={<Calculator className="h-5 w-5" />} />
+        <ResultCard title="النتيجة" result={result.value} details={result.details} rawValue={result.rawValue} unitType="volume" onSave={handleSave} icon={<Calculator className="h-5 w-5" />} />
       )}
     </div>
   );

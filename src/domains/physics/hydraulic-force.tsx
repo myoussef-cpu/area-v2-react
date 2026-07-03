@@ -5,6 +5,7 @@ import { Input } from '../../shared/ui/input';
 import { Button } from '../../shared/ui/button';
 import { ResultCard } from '../../shared/ui/result-card';
 import type { ToolProps } from '../../shared/types';
+import { usePendingSave } from '../../shared/store/pending-save-store';
 
 export default function HydraulicForce({ onSave }: ToolProps) {
   const [inputs, setInputs] = useState<Record<string, string>>({});
@@ -35,7 +36,17 @@ export default function HydraulicForce({ onSave }: ToolProps) {
 قوة الدفع (Push): ${pushForce.toFixed(2)} نيوتن (${(pushForce / 1000).toFixed(2)} كيلو نيوتن)
 قوة السحب (Retract): ${retractForce.toFixed(2)} نيوتن (${(retractForce / 1000).toFixed(2)} كيلو نيوتن)`;
 
-    setResult({ value: `${pushForce.toFixed(2)} نيوتن (دفع)`, details });
+    const __v = `${pushForce.toFixed(2)} نيوتن (دفع)`;
+    setResult({ value: __v, details });
+    usePendingSave.getState().set({
+      toolId: 'hydraulic-force',
+      toolName: 'قوة الهيدروليك',
+      inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+      result: __v,
+      details,
+      unit: 'N',
+      timestamp: Date.now(),
+    });
   };
 
   const handleSave = () => {
@@ -54,18 +65,9 @@ export default function HydraulicForce({ onSave }: ToolProps) {
   return (
     <div className="space-y-4">
       <Card>
-        <div className="mb-4">
-          <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">قطر المكبس (مم)</label>
-          <Input type="number" value={inputs['bore'] || ''} onChange={(e) => handleInput('bore', e.target.value)} placeholder="مم" />
-        </div>
-        <div className="mb-4">
-          <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">قطر القضيب (مم) - اختياري</label>
-          <Input type="number" value={inputs['rod'] || ''} onChange={(e) => handleInput('rod', e.target.value)} placeholder="مم" />
-        </div>
-        <div className="mb-4">
-          <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">الضغط (بار)</label>
-          <Input type="number" value={inputs['pressure'] || ''} onChange={(e) => handleInput('pressure', e.target.value)} placeholder="بار" />
-        </div>
+        <Input label="قطر المكبس (مم)" type="number" value={inputs['bore'] || ''} onChange={(e) => handleInput('bore', e.target.value)} placeholder="مم" />
+        <Input label="قطر القضيب (مم) - اختياري" type="number" value={inputs['rod'] || ''} onChange={(e) => handleInput('rod', e.target.value)} placeholder="مم" />
+        <Input label="الضغط (بار)" type="number" value={inputs['pressure'] || ''} onChange={(e) => handleInput('pressure', e.target.value)} placeholder="بار" />
         <Button onClick={calculate} className="w-full mt-4">حساب</Button>
       </Card>
       {result && (

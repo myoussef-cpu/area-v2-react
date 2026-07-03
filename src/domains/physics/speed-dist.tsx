@@ -6,6 +6,7 @@ import { Select } from '../../shared/ui/select';
 import { Button } from '../../shared/ui/button';
 import { ResultCard } from '../../shared/ui/result-card';
 import type { ToolProps } from '../../shared/types';
+import { usePendingSave } from '../../shared/store/pending-save-store';
 
 const MODES = [
   { label: 'حساب السرعة (v = d ÷ t)', value: 'v' },
@@ -50,16 +51,49 @@ export default function SpeedDist({ onSave }: ToolProps) {
       if (tS === 0) return;
       const vmps = dM / tS;
       const vkmh = vmps * 3.6;
-      setResult({ value: `${vmps.toFixed(2)} م/ث`, details: `السرعة = المسافة ÷ الزمن\n${dM.toFixed(2)} م ÷ ${tS.toFixed(2)} ث = ${vmps.toFixed(2)} م/ث\n= ${vkmh.toFixed(2)} كم/س` });
+      const __v = `${vmps.toFixed(2)} م/ث`;
+      const __d = `السرعة = المسافة ÷ الزمن\n${dM.toFixed(2)} م ÷ ${tS.toFixed(2)} ث = ${vmps.toFixed(2)} م/ث\n= ${vkmh.toFixed(2)} كم/س`;
+      setResult({ value: __v, details: __d });
+      usePendingSave.getState().set({
+        toolId: 'speed-dist',
+        toolName: 'السرعة والزمن',
+        inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+        result: __v,
+        details: __d,
+        unit: '',
+        timestamp: Date.now(),
+      });
     } else if (mode === 'd') {
       const dm = v * tS;
       const dd = dm / (DIST_TO_M[distUnit as keyof typeof DIST_TO_M] || 1);
-      setResult({ value: `${dd.toFixed(2)} ${distUnit === 'km' ? 'كم' : 'م'}`, details: `المسافة = السرعة × الزمن\n${v} م/ث × ${tS.toFixed(2)} ث = ${dm.toFixed(2)} م\n= ${dd.toFixed(2)} ${distUnit === 'km' ? 'كم' : 'م'}` });
+      const __v = `${dd.toFixed(2)} ${distUnit === 'km' ? 'كم' : 'م'}`;
+      const __d = `المسافة = السرعة × الزمن\n${v} م/ث × ${tS.toFixed(2)} ث = ${dm.toFixed(2)} م\n= ${dd.toFixed(2)} ${distUnit === 'km' ? 'كم' : 'م'}`;
+      setResult({ value: __v, details: __d });
+      usePendingSave.getState().set({
+        toolId: 'speed-dist',
+        toolName: 'السرعة والزمن',
+        inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+        result: __v,
+        details: __d,
+        unit: '',
+        timestamp: Date.now(),
+      });
     } else {
       if (v === 0) return;
       const ts = dM / v;
       const tu = ts / (TIME_TO_S[timeUnit as keyof typeof TIME_TO_S] || 1);
-      setResult({ value: `${tu.toFixed(2)} ${timeUnit === 's' ? 'ث' : timeUnit === 'min' ? 'دق' : 'س'}`, details: `الزمن = المسافة ÷ السرعة\n${dM.toFixed(2)} م ÷ ${v} م/ث = ${ts.toFixed(2)} ث\n= ${tu.toFixed(2)} ${timeUnit === 's' ? 'ثانية' : timeUnit === 'min' ? 'دقيقة' : 'ساعة'}` });
+      const __v = `${tu.toFixed(2)} ${timeUnit === 's' ? 'ث' : timeUnit === 'min' ? 'دق' : 'س'}`;
+      const __d = `الزمن = المسافة ÷ السرعة\n${dM.toFixed(2)} م ÷ ${v} م/ث = ${ts.toFixed(2)} ث\n= ${tu.toFixed(2)} ${timeUnit === 's' ? 'ثانية' : timeUnit === 'min' ? 'دقيقة' : 'ساعة'}`;
+      setResult({ value: __v, details: __d });
+      usePendingSave.getState().set({
+        toolId: 'speed-dist',
+        toolName: 'السرعة والزمن',
+        inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+        result: __v,
+        details: __d,
+        unit: '',
+        timestamp: Date.now(),
+      });
     }
   };
 
@@ -81,26 +115,17 @@ export default function SpeedDist({ onSave }: ToolProps) {
       <Card>
         <Select label="وضع الحساب" value={mode} onChange={(e) => { setMode(e.target.value); setResult(null); }} options={MODES} />
         {mode !== 'v' && (
-          <div className="mb-4">
-            <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">السرعة</label>
-            <Input type="number" value={inputs['speed'] || ''} onChange={(e) => handleInput('speed', e.target.value)} placeholder="م/ث" />
-          </div>
+          <Input label="السرعة" type="number" value={inputs['speed'] || ''} onChange={(e) => handleInput('speed', e.target.value)} placeholder="م/ث" />
         )}
         {mode !== 'd' && (
           <>
-            <div className="mb-4">
-              <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">المسافة</label>
-              <Input type="number" value={inputs['distance'] || ''} onChange={(e) => handleInput('distance', e.target.value)} placeholder="المسافة" />
-            </div>
+            <Input label="المسافة" type="number" value={inputs['distance'] || ''} onChange={(e) => handleInput('distance', e.target.value)} placeholder="المسافة" />
             <Select label="وحدة المسافة" value={distUnit} onChange={(e) => setDistUnit(e.target.value)} options={DIST_UNITS} />
           </>
         )}
         {mode !== 't' && (
           <>
-            <div className="mb-4">
-              <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">الزمن</label>
-              <Input type="number" value={inputs['time'] || ''} onChange={(e) => handleInput('time', e.target.value)} placeholder="الزمن" />
-            </div>
+            <Input label="الزمن" type="number" value={inputs['time'] || ''} onChange={(e) => handleInput('time', e.target.value)} placeholder="الزمن" />
             <Select label="وحدة الزمن" value={timeUnit} onChange={(e) => setTimeUnit(e.target.value)} options={TIME_UNITS} />
           </>
         )}

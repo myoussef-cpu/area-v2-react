@@ -6,6 +6,7 @@ import { Select } from '../../shared/ui/select';
 import { Button } from '../../shared/ui/button';
 import { ResultCard } from '../../shared/ui/result-card';
 import type { ToolProps } from '../../shared/types';
+import { usePendingSave } from '../../shared/store/pending-save-store';
 
 const MODES = [
   { label: 'تناسب طردي (a:b = c:x)', value: 'direct' },
@@ -35,17 +36,50 @@ export default function RatioCalc({ onSave }: ToolProps) {
     if (mode === 'direct') {
       if (a === 0 || b === 0) return;
       const x = (b * c) / a;
-      setResult({ value: `x = ${x.toFixed(4)}`, details: `${a} : ${b} = ${c} : x\nx = (${b} × ${c}) / ${a} = ${x.toFixed(4)}` });
+      const __v = `x = ${x.toFixed(4)}`;
+      const __d = `${a} : ${b} = ${c} : x\nx = (${b} × ${c}) / ${a} = ${x.toFixed(4)}`;
+      setResult({ value: __v, details: __d });
+      usePendingSave.getState().set({
+        toolId: 'ratio-calc',
+        toolName: 'التناسب والنسبة',
+        inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+        result: __v,
+        details: __d,
+        unit: '',
+        timestamp: Date.now(),
+      });
     } else if (mode === 'inverse') {
       if (a === 0 || c === 0) return;
       const x = (a * b) / c;
-      setResult({ value: `x = ${x.toFixed(4)}`, details: `تناسب عكسي: a × b = c × x\nx = (${a} × ${b}) / ${c} = ${x.toFixed(4)}` });
+      const __v = `x = ${x.toFixed(4)}`;
+      const __d = `تناسب عكسي: a × b = c × x\nx = (${a} × ${b}) / ${c} = ${x.toFixed(4)}`;
+      setResult({ value: __v, details: __d });
+      usePendingSave.getState().set({
+        toolId: 'ratio-calc',
+        toolName: 'التناسب والنسبة',
+        inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+        result: __v,
+        details: __d,
+        unit: '',
+        timestamp: Date.now(),
+      });
     } else {
       if (a === 0 && b === 0) return;
       const g = gcd(a, b);
       const sa = a / g;
       const sb = b / g;
-      setResult({ value: `${sa} : ${sb}`, details: `القاسم المشترك الأكبر = ${g}\n${a} : ${b} = ${sa} : ${sb}` });
+      const __v = `${sa} : ${sb}`;
+      const __d = `القاسم المشترك الأكبر = ${g}\n${a} : ${b} = ${sa} : ${sb}`;
+      setResult({ value: __v, details: __d });
+      usePendingSave.getState().set({
+        toolId: 'ratio-calc',
+        toolName: 'التناسب والنسبة',
+        inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+        result: __v,
+        details: __d,
+        unit: '',
+        timestamp: Date.now(),
+      });
     }
   };
 
@@ -66,19 +100,10 @@ export default function RatioCalc({ onSave }: ToolProps) {
     <div className="space-y-4">
       <Card>
         <Select label="نوع العملية" value={mode} onChange={(e) => { setMode(e.target.value); setResult(null); }} options={MODES} />
-        <div className="mb-4">
-          <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">أ</label>
-          <Input type="number" value={inputs['a'] || ''} onChange={(e) => handleInput('a', e.target.value)} />
-        </div>
-        <div className="mb-4">
-          <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">ب</label>
-          <Input type="number" value={inputs['b'] || ''} onChange={(e) => handleInput('b', e.target.value)} />
-        </div>
+        <Input label="أ" type="number" value={inputs['a'] || ''} onChange={(e) => handleInput('a', e.target.value)} />
+        <Input label="ب" type="number" value={inputs['b'] || ''} onChange={(e) => handleInput('b', e.target.value)} />
         {mode !== 'simplify' && (
-          <div className="mb-4">
-            <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">جـ</label>
-            <Input type="number" value={inputs['c'] || ''} onChange={(e) => handleInput('c', e.target.value)} />
-          </div>
+          <Input label="جـ" type="number" value={inputs['c'] || ''} onChange={(e) => handleInput('c', e.target.value)} />
         )}
         <Button onClick={calculate} className="w-full mt-4">حساب</Button>
       </Card>

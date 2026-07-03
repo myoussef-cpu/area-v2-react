@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { usePendingSave } from '../../shared/store/pending-save-store';
 import { Ruler, Calculator, HardHat } from 'lucide-react';
 import { Card } from '../../shared/ui/card';
 import { Input } from '../../shared/ui/input';
@@ -12,7 +13,7 @@ type Mode = 'slab' | 'column' | 'footing' | 'beam';
 
 export default function ConcreteCalc({ onSave }: ToolProps) {
   const [inputs, setInputs] = useState<Record<string, string>>({});
-  const [result, setResult] = useState<{ value: string; details: string } | null>(null);
+  const [result, setResult] = useState<{ value: string; details: string; rawValue?: number } | null>(null);
   const [mode, setMode] = useState<Mode>('slab');
   const { formatVolume } = useUnits();
 
@@ -54,7 +55,17 @@ export default function ConcreteCalc({ onSave }: ToolProps) {
       details = `حجم الكمرة = ${w} × ${d} × ${l} = ${toFixed(volume)} م³`;
     }
 
-    setResult({ value: formatVolume(volume), details });
+    const __v = formatVolume(volume);
+    setResult({ value: __v, details, rawValue: volume });
+    usePendingSave.getState().set({
+      toolId: 'concrete-calc',
+      toolName: 'كميات الخرسانة',
+      inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+      result: __v,
+      details,
+      unit: 'م³',
+      timestamp: Date.now(),
+    });
   };
 
   const handleSave = () => {
@@ -113,7 +124,7 @@ export default function ConcreteCalc({ onSave }: ToolProps) {
       </Card>
 
       {result && (
-        <ResultCard title="النتيجة" result={result.value} details={result.details} onSave={handleSave} icon={<Calculator className="h-5 w-5" />} />
+        <ResultCard title="النتيجة" result={result.value} details={result.details} rawValue={result.rawValue} unitType="volume" onSave={handleSave} icon={<Calculator className="h-5 w-5" />} />
       )}
     </div>
   );

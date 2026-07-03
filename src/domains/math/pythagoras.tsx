@@ -6,6 +6,7 @@ import { Select } from '../../shared/ui/select';
 import { Button } from '../../shared/ui/button';
 import { ResultCard } from '../../shared/ui/result-card';
 import type { ToolProps } from '../../shared/types';
+import { usePendingSave } from '../../shared/store/pending-save-store';
 
 const MODES = [
   { label: 'حساب الوتر (c = √(a² + b²))', value: 'hyp' },
@@ -29,15 +30,48 @@ export default function Pythagoras({ onSave }: ToolProps) {
     if (mode === 'hyp') {
       if (!a || !b) return;
       const hyp = Math.sqrt(a * a + b * b);
-      setResult({ value: `${hyp.toFixed(3)}`, details: `c = √(a² + b²) = √(${a}² + ${b}²) = √(${(a * a).toFixed(2)} + ${(b * b).toFixed(2)}) = ${hyp.toFixed(3)}` });
+      const __v = `${hyp.toFixed(3)}`;
+      const __d = `c = √(a² + b²) = √(${a}² + ${b}²) = √(${(a * a).toFixed(2)} + ${(b * b).toFixed(2)}) = ${hyp.toFixed(3)}`;
+      setResult({ value: __v, details: __d });
+      usePendingSave.getState().set({
+        toolId: 'pythagoras',
+        toolName: 'فيثاغورس',
+        inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+        result: __v,
+        details: __d,
+        unit: '',
+        timestamp: Date.now(),
+      });
     } else {
       if (!c || !b) return;
       if (c <= b) {
-        setResult({ value: 'الوتر يجب أن يكون أكبر من الضلع', details: '' });
+        const __v = 'الوتر يجب أن يكون أكبر من الضلع';
+        const __d = '';
+        setResult({ value: __v, details: __d });
+        usePendingSave.getState().set({
+          toolId: 'pythagoras',
+          toolName: 'فيثاغورس',
+          inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+          result: __v,
+          details: __d,
+          unit: '',
+          timestamp: Date.now(),
+        });
         return;
       }
       const leg = Math.sqrt(c * c - b * b);
-      setResult({ value: `${leg.toFixed(3)}`, details: `a = √(c² - b²) = √(${c}² - ${b}²) = √(${(c * c).toFixed(2)} - ${(b * b).toFixed(2)}) = ${leg.toFixed(3)}` });
+      const __v = `${leg.toFixed(3)}`;
+      const __d = `a = √(c² - b²) = √(${c}² - ${b}²) = √(${(c * c).toFixed(2)} - ${(b * b).toFixed(2)}) = ${leg.toFixed(3)}`;
+      setResult({ value: __v, details: __d });
+      usePendingSave.getState().set({
+        toolId: 'pythagoras',
+        toolName: 'فيثاغورس',
+        inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+        result: __v,
+        details: __d,
+        unit: '',
+        timestamp: Date.now(),
+      });
     }
   };
 
@@ -58,18 +92,18 @@ export default function Pythagoras({ onSave }: ToolProps) {
     <div className="space-y-4">
       <Card>
         <Select label="وضع الحساب" value={mode} onChange={(e) => { setMode(e.target.value); setResult(null); }} options={MODES} />
-        <div className="mb-4">
-          <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">
-            {mode === 'hyp' ? 'الضلع الأول (a)' : 'الوتر (c)'}
-          </label>
-          <Input type="number" value={inputs[mode === 'hyp' ? 'a' : 'c'] || ''} onChange={(e) => handleInput(mode === 'hyp' ? 'a' : 'c', e.target.value)} placeholder="القيمة" />
-        </div>
-        <div className="mb-4">
-          <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">
-            {mode === 'hyp' ? 'الضلع الثاني (b)' : 'الضلع المعلوم (b)'}
-          </label>
-          <Input type="number" value={inputs['b'] || ''} onChange={(e) => handleInput('b', e.target.value)} placeholder="القيمة" />
-        </div>
+        <Input
+          label={mode === 'hyp' ? 'الضلع الأول (a)' : 'الوتر (c)'}
+          type="number" value={inputs[mode === 'hyp' ? 'a' : 'c'] || ''}
+          onChange={(e) => handleInput(mode === 'hyp' ? 'a' : 'c', e.target.value)}
+          placeholder="القيمة"
+        />
+        <Input
+          label={mode === 'hyp' ? 'الضلع الثاني (b)' : 'الضلع المعلوم (b)'}
+          type="number" value={inputs['b'] || ''}
+          onChange={(e) => handleInput('b', e.target.value)}
+          placeholder="القيمة"
+        />
         <Button onClick={calculate} className="w-full mt-4">حساب</Button>
       </Card>
       {result && (

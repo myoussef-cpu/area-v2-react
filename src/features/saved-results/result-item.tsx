@@ -63,6 +63,11 @@ export function ResultItem({ result, deleting, onDelete, onExport }: ResultItemP
 
       {expanded && (
         <div className="mt-3 space-y-1.5 border-t border-black/5 pt-3 dark:border-white/10">
+          {result.image && (
+            <div className="flex justify-center rounded-xl bg-black/[0.02] p-2 dark:bg-white/[0.02]">
+              <img src={result.image} alt="Shape" className="max-h-48 w-full max-w-sm rounded-lg object-contain" />
+            </div>
+          )}
           {Object.entries(result.inputs).map(([key, val]) => (
             <div key={key} className="flex items-center justify-between text-xs">
               <span className="text-[#8e8e93]">{key}</span>
@@ -70,7 +75,7 @@ export function ResultItem({ result, deleting, onDelete, onExport }: ResultItemP
             </div>
           ))}
           {result.details && (
-            <div className="pt-1 text-xs text-[#8e8e93]">{result.details}</div>
+            <div className="whitespace-pre-line pt-1 text-xs text-[#8e8e93]">{result.details}</div>
           )}
         </div>
       )}

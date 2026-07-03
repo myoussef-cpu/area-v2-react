@@ -6,11 +6,12 @@ import { Button } from '../../shared/ui/button';
 import { ResultCard } from '../../shared/ui/result-card';
 import { useUnits } from '../../shared/hooks/use-units';
 import { Geometry, toFixed } from '../../shared/lib/geometry';
+import { usePendingSave } from '../../shared/store/pending-save-store';
 import type { ToolProps, CalculationData } from '../../shared/types';
 
 export default function FrustumCone({ onSave }: ToolProps) {
   const [inputs, setInputs] = useState<Record<string, string>>({});
-  const [result, setResult] = useState<{ value: string; details: string } | null>(null);
+  const [result, setResult] = useState<{ value: string; details: string; rawValue?: number } | null>(null);
   const { formatVolume } = useUnits();
 
   const handleInput = (key: string, value: string) => {
@@ -25,9 +26,17 @@ export default function FrustumCone({ onSave }: ToolProps) {
     const volume = Geometry.frustumVolume(R1, R2, h);
     const slant = Math.sqrt(h * h + (R2 - R1) * (R2 - R1));
     const surface = Math.PI * (R1 * R1 + R2 * R2) + Math.PI * (R1 + R2) * slant;
-    setResult({
-      value: formatVolume(volume),
-      details: `الحجم = (π × ${h} / 3) × (${R1}² + ${R2}² + ${R1}×${R2}) = ${toFixed(volume)} م³\nالمساحة السطحية = ${toFixed(surface)} م²`,
+    const __v = formatVolume(volume);
+    const __d = `الحجم = (π × ${h} / 3) × (${R1}² + ${R2}² + ${R1}×${R2}) = ${toFixed(volume)} م³\nالمساحة السطحية = ${toFixed(surface)} م²`;
+    setResult({ value: __v, details: __d, rawValue: volume });
+    usePendingSave.getState().set({
+      toolId: 'frustum-cone',
+      toolName: 'المخروط الناقص',
+      inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+      result: __v,
+      details: __d,
+      unit: 'م³',
+      timestamp: Date.now(),
     });
   };
 
@@ -65,7 +74,7 @@ export default function FrustumCone({ onSave }: ToolProps) {
         <Button onClick={calculate} className="w-full mt-4">حساب</Button>
       </Card>
       {result && (
-        <ResultCard title="النتيجة" result={result.value} details={result.details} onSave={handleSave} icon={<Calculator className="h-5 w-5" />} />
+        <ResultCard title="النتيجة" result={result.value} details={result.details} rawValue={result.rawValue} unitType="volume" onSave={handleSave} icon={<Calculator className="h-5 w-5" />} />
       )}
     </div>
   );

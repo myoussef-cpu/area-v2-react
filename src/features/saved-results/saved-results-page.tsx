@@ -2,22 +2,24 @@ import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { Search, Trash2, X, Cloud, CloudOff, Inbox } from 'lucide-react';
 import { useResultsStore } from '../../shared/store/results-store';
 import { useAuthStore } from '../../shared/store/auth-store';
+import { useResults } from '../../shared/hooks/use-results';
 import { Button } from '../../shared/ui/button';
 import { cn } from '../../shared/lib/cn';
 import { ResultItem } from './result-item';
 
 export default function SavedResultsPage() {
   const { results, removeResult, clearAll } = useResultsStore();
+  const { deleteResult } = useResults();
   const user = useAuthStore((s) => s.user);
   const [search, setSearch] = useState('');
-  const [synced] = useState(false);
   const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
+  const synced = results.length > 0 && results.every((r) => r.synced);
   const timeoutsRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
   const handleDelete = useCallback((id: string) => {
     setDeletingIds((prev) => new Set(prev).add(id));
     const timeout = setTimeout(() => {
-      removeResult(id);
+      deleteResult(id);
       setDeletingIds((prev) => {
         const next = new Set(prev);
         next.delete(id);
@@ -26,7 +28,7 @@ export default function SavedResultsPage() {
       timeoutsRef.current.delete(id);
     }, 300);
     timeoutsRef.current.set(id, timeout);
-  }, [removeResult]);
+  }, [deleteResult]);
 
   useEffect(() => {
     return () => {

@@ -15,6 +15,7 @@ export const VOLUME_UNITS = {
   liter: { id: 'liter', label: 'لتر (L)', factor: 1000, type: 'volume' as UnitType },
   ml: { id: 'ml', label: 'ميليلتر (mL)', factor: 1e6, type: 'volume' as UnitType },
   ft3: { id: 'ft3', label: 'قدم³ (ft³)', factor: 35.3147, type: 'volume' as UnitType },
+  gallon: { id: 'gallon', label: 'جالون (gal)', factor: 264.172, type: 'volume' as UnitType },
 };
 
 export const LENGTH_UNITS = {

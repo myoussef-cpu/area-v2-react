@@ -5,6 +5,7 @@ import { Input } from '../../shared/ui/input';
 import { Select } from '../../shared/ui/select';
 import { Button } from '../../shared/ui/button';
 import { ResultCard } from '../../shared/ui/result-card';
+import { usePendingSave } from '../../shared/store/pending-save-store';
 import type { ToolProps } from '../../shared/types';
 
 const PHASE_OPTIONS = [
@@ -39,7 +40,18 @@ P = ${p.toFixed(3)} kW
 Q = ${q.toFixed(3)} kVAR
 معامل القدرة: ${pf}`;
 
-    setResult({ value: `${p.toFixed(2)} kW`, details });
+    const __v = `${p.toFixed(2)} kW`;
+    const __d = details;
+    setResult({ value: __v, details: __d });
+    usePendingSave.getState().set({
+      toolId: 'elec-power',
+      toolName: 'القدرة الكهربائية',
+      inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+      result: __v,
+      details: __d,
+      unit: 'kW',
+      timestamp: Date.now(),
+    });
   };
 
   const handleSave = () => {
@@ -59,18 +71,9 @@ Q = ${q.toFixed(3)} kVAR
     <div className="space-y-4">
       <Card>
         <Select label="نوع الطور" value={phase} onChange={(e) => { setPhase(e.target.value); setResult(null); }} options={PHASE_OPTIONS} />
-        <div className="mb-4">
-          <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">الجهد (V)</label>
-          <Input type="number" value={inputs['voltage'] || ''} onChange={(e) => handleInput('voltage', e.target.value)} placeholder="فولت" />
-        </div>
-        <div className="mb-4">
-          <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">التيار (I)</label>
-          <Input type="number" value={inputs['current'] || ''} onChange={(e) => handleInput('current', e.target.value)} placeholder="أمبير" />
-        </div>
-        <div className="mb-4">
-          <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">معامل القدرة (PF)</label>
-          <Input type="number" value={inputs['pf'] || ''} onChange={(e) => handleInput('pf', e.target.value)} placeholder="0-1" step="0.01" />
-        </div>
+        <Input label="الجهد (V)" type="number" value={inputs['voltage'] || ''} onChange={(e) => handleInput('voltage', e.target.value)} placeholder="فولت" />
+        <Input label="التيار (I)" type="number" value={inputs['current'] || ''} onChange={(e) => handleInput('current', e.target.value)} placeholder="أمبير" />
+        <Input label="معامل القدرة (PF)" type="number" value={inputs['pf'] || ''} onChange={(e) => handleInput('pf', e.target.value)} placeholder="0-1" step="0.01" />
         <Button onClick={calculate} className="w-full mt-4">حساب</Button>
       </Card>
       {result && (

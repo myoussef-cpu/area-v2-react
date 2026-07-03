@@ -219,7 +219,7 @@ export default function CalculatorPage() {
             ref={displayRef}
             className={cn(
               'overflow-x-auto whitespace-nowrap text-left font-bold tracking-tight text-[#1c1c1e] dark:text-white scrollbar-none motion-safe:transition-[font-size] motion-safe:duration-150',
-              isSmall ? 'text-[clamp(1.4rem,6.5vw,2.5rem)]' : 'text-[clamp(1.8rem,8vw,3.5rem)]'
+              isSmall ? 'text-[clamp(1.6rem,7.5vw,3rem)]' : 'text-[clamp(2rem,9.5vw,4rem)]'
             )}
             dir="ltr"
           >
@@ -242,7 +242,7 @@ export default function CalculatorPage() {
                 key={s.label}
                 onClick={() => sciFn(s.fn)}
                 className={cn(
-                  'flex h-[clamp(2rem,5vw,2.75rem)] items-center justify-center rounded-[clamp(0.5rem,1.2vw,0.75rem)] bg-primary/8 text-[clamp(0.625rem,2vw,0.875rem)] font-semibold text-primary/80 transition-all hover:bg-primary/15 active:scale-90',
+                  'flex h-[clamp(2.25rem,5.5vw,3rem)] items-center justify-center rounded-[clamp(0.55rem,1.6vw,0.875rem)] bg-primary/8 text-[clamp(0.7rem,2.4vw,1rem)] font-semibold text-primary/80 transition-all hover:bg-primary/15 active:scale-90',
                   showSci && 'motion-safe:animate-[fade-in_250ms_ease-out_both]'
                 )}
                 style={showSci ? { animationDelay: `${i * 30}ms` } : undefined}
@@ -256,7 +256,7 @@ export default function CalculatorPage() {
 
       {/* Keypad */}
       <div className="flex flex-1 flex-col justify-center px-3 pb-2 pt-1">
-        <div className="grid h-full grid-cols-4 gap-[clamp(0.375rem,1.2vw,0.75rem)]">
+        <div className="grid h-full grid-cols-4 gap-[clamp(0.5rem,1.6vw,1rem)]">
           {KEYS.flat().map((k, idx) => {
             if (!k) return null;
 
@@ -276,17 +276,17 @@ export default function CalculatorPage() {
                 key={idx}
                 onClick={() => handleKey(k)}
                 className={cn(
-                  'flex min-h-0 flex-1 items-center justify-center rounded-[clamp(0.75rem,2.2vw,1.25rem)] font-semibold transition-all active:scale-90',
-                  'text-[clamp(1rem,4.5vw,1.75rem)] bg-white/60 text-[#1c1c1e] backdrop-blur-md hover:bg-white/90',
+                  'flex min-h-0 flex-1 items-center justify-center rounded-[clamp(0.85rem,2.8vw,1.5rem)] font-semibold transition-all active:scale-90',
+                  'text-[clamp(1.15rem,5.5vw,2rem)] bg-white/60 text-[#1c1c1e] backdrop-blur-md hover:bg-white/90',
                   'dark:bg-white/8 dark:text-white dark:hover:bg-white/15',
                   cls,
                   variant !== 'num' && variant !== 'clear' ? 'shadow-none' : '',
                   k === '0' && 'justify-start pr-6'
                 )}
               >
-                {k === '×' ? <span className="text-[clamp(1.1rem,5vw,1.9rem)]">×</span> :
-                 k === '÷' ? <span className="text-[clamp(1.1rem,5vw,1.9rem)]">÷</span> :
-                 k === '⌫' ? <X className="h-[clamp(1rem,4vw,1.5rem)] w-[clamp(1rem,4vw,1.5rem)]" /> :
+                {k === '×' ? <span className="text-[clamp(1.3rem,6.5vw,2.3rem)]">×</span> :
+                 k === '÷' ? <span className="text-[clamp(1.3rem,6.5vw,2.3rem)]">÷</span> :
+                 k === '⌫' ? <X className="h-[clamp(1.15rem,5vw,1.75rem)] w-[clamp(1.15rem,5vw,1.75rem)]" /> :
                  k}
               </button>
             );

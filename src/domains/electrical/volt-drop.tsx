@@ -5,6 +5,7 @@ import { Input } from '../../shared/ui/input';
 import { Select } from '../../shared/ui/select';
 import { Button } from '../../shared/ui/button';
 import { ResultCard } from '../../shared/ui/result-card';
+import { usePendingSave } from '../../shared/store/pending-save-store';
 import type { ToolProps } from '../../shared/types';
 
 const MATERIAL_OPTIONS = [
@@ -45,7 +46,18 @@ export default function VoltDrop({ onSave }: ToolProps) {
 نسبة الهبوط: ${vDropPct.toFixed(2)}%
 الحالة: ${status}`;
 
-    setResult({ value: `${vDrop.toFixed(2)} فولت (${vDropPct.toFixed(1)}%)`, details });
+    const __v = `${vDrop.toFixed(2)} فولت (${vDropPct.toFixed(1)}%)`;
+    const __d = details;
+    setResult({ value: __v, details: __d });
+    usePendingSave.getState().set({
+      toolId: 'volt-drop',
+      toolName: 'هبوط الجهد',
+      inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+      result: __v,
+      details: __d,
+      unit: 'V',
+      timestamp: Date.now(),
+    });
   };
 
   const handleSave = () => {
@@ -65,26 +77,11 @@ export default function VoltDrop({ onSave }: ToolProps) {
     <div className="space-y-4">
       <Card>
         <Select label="مادة الكابل" value={material} onChange={(e) => setMaterial(e.target.value)} options={MATERIAL_OPTIONS} />
-        <div className="mb-4">
-          <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">طول الكابل (م)</label>
-          <Input type="number" value={inputs['length'] || ''} onChange={(e) => handleInput('length', e.target.value)} placeholder="متر" />
-        </div>
-        <div className="mb-4">
-          <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">تيار الحمل (أمبير)</label>
-          <Input type="number" value={inputs['current'] || ''} onChange={(e) => handleInput('current', e.target.value)} placeholder="أمبير" />
-        </div>
-        <div className="mb-4">
-          <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">مساحة المقطع (مم²)</label>
-          <Input type="number" value={inputs['size'] || ''} onChange={(e) => handleInput('size', e.target.value)} placeholder="مم²" />
-        </div>
-        <div className="mb-4">
-          <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">الجهد (فولت)</label>
-          <Input type="number" value={inputs['voltage'] || ''} onChange={(e) => handleInput('voltage', e.target.value)} placeholder="فولت" />
-        </div>
-        <div className="mb-4">
-          <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">معامل القدرة (PF)</label>
-          <Input type="number" value={inputs['pf'] || '1'} onChange={(e) => handleInput('pf', e.target.value)} placeholder="0-1" step="0.01" />
-        </div>
+        <Input label="طول الكابل (م)" type="number" value={inputs['length'] || ''} onChange={(e) => handleInput('length', e.target.value)} placeholder="متر" />
+        <Input label="تيار الحمل (أمبير)" type="number" value={inputs['current'] || ''} onChange={(e) => handleInput('current', e.target.value)} placeholder="أمبير" />
+        <Input label="مساحة المقطع (مم²)" type="number" value={inputs['size'] || ''} onChange={(e) => handleInput('size', e.target.value)} placeholder="مم²" />
+        <Input label="الجهد (فولت)" type="number" value={inputs['voltage'] || ''} onChange={(e) => handleInput('voltage', e.target.value)} placeholder="فولت" />
+        <Input label="معامل القدرة (PF)" type="number" value={inputs['pf'] || '1'} onChange={(e) => handleInput('pf', e.target.value)} placeholder="0-1" step="0.01" />
         <Button onClick={calculate} className="w-full mt-4">حساب</Button>
       </Card>
       {result && (

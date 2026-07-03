@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
-import { auth } from '../shared/lib/firebase';
+import { signInWithPopup, signOut, type UserCredential } from 'firebase/auth';
+import {
+  auth, googleProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile,
+} from '../shared/lib/firebase';
 import { useAuthStore } from '../shared/store/auth-store';
 import { LoginForm } from '../features/auth/login-form';
 import { ProfileCard } from '../features/auth/profile-card';
@@ -11,11 +13,25 @@ export default function LoginPage() {
   const user = useAuthStore((s) => s.user);
   const [error, setError] = useState<string | null>(null);
 
-  const handleLogin = async () => {
+  const syncUser = (cred: UserCredential) => {
+    const u = cred.user;
+    useAuthStore.getState().setUser({
+      uid: u.uid,
+      displayName: u.displayName,
+      email: u.email,
+      photoURL: u.photoURL,
+    });
+  };
+
+  const handleGoogleLogin = async () => {
+    if (!auth || !googleProvider) {
+      setError('Firebase غير مُهيّأ. الرجاء إعداد بيانات Firebase الخاصة بك.');
+      return;
+    }
     setError(null);
     try {
-      const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+      const cred = await signInWithPopup(auth, googleProvider);
+      syncUser(cred);
       navigate('/');
     } catch (err: any) {
       if (err.code === 'auth/popup-closed-by-user') return;
@@ -23,7 +39,33 @@ export default function LoginPage() {
     }
   };
 
+  const handleEmailLogin = async (email: string, password: string) => {
+    if (!auth) { setError('Firebase غير مُهيّأ.'); return; }
+    setError(null);
+    try {
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+      syncUser(cred);
+      navigate('/');
+    } catch (err: any) {
+      setError(getFirebaseErrorMessage(err.code));
+    }
+  };
+
+  const handleEmailRegister = async (email: string, password: string, displayName: string) => {
+    if (!auth) { setError('Firebase غير مُهيّأ.'); return; }
+    setError(null);
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(cred.user, { displayName });
+      syncUser(cred);
+      navigate('/');
+    } catch (err: any) {
+      setError(getFirebaseErrorMessage(err.code));
+    }
+  };
+
   const handleSignOut = async () => {
+    if (!auth) return;
     await signOut(auth);
   };
 
@@ -45,9 +87,28 @@ export default function LoginPage() {
         </div>
       ) : (
         <div className="w-full max-w-sm">
-          <LoginForm onLogin={handleLogin} error={error} />
+          <LoginForm
+            onGoogleLogin={handleGoogleLogin}
+            onEmailLogin={handleEmailLogin}
+            onEmailRegister={handleEmailRegister}
+            error={error}
+          />
         </div>
       )}
     </div>
   );
+}
+
+function getFirebaseErrorMessage(code: string): string {
+  const map: Record<string, string> = {
+    'auth/user-not-found': 'لا يوجد حساب بهذا البريد الإلكتروني',
+    'auth/wrong-password': 'كلمة المرور غير صحيحة',
+    'auth/invalid-credential': 'البريد الإلكتروني أو كلمة المرور غير صحيحة',
+    'auth/email-already-in-use': 'هذا البريد الإلكتروني مستخدم بالفعل',
+    'auth/weak-password': 'كلمة المرور ضعيفة جداً (6 أحرف على الأقل)',
+    'auth/invalid-email': 'البريد الإلكتروني غير صالح',
+    'auth/too-many-requests': 'تم حظر الحساب مؤقتاً - حاول لاحقاً',
+    'auth/network-request-failed': 'فشل الاتصال بالإنترنت',
+  };
+  return map[code] || code || 'حدث خطأ غير متوقع';
 }

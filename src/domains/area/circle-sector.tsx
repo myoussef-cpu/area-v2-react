@@ -1,20 +1,24 @@
 import { useState } from 'react';
-import { Circle, Ruler, Calculator, Radius } from 'lucide-react';
+import { Circle, Ruler, Calculator, CircleDot } from 'lucide-react';
 import { Card } from '../../shared/ui/card';
 import { Input } from '../../shared/ui/input';
 import { Button } from '../../shared/ui/button';
 import { ResultCard } from '../../shared/ui/result-card';
 import { useUnits } from '../../shared/hooks/use-units';
 import { Geometry, toFixed } from '../../shared/lib/geometry';
+import { CircleSVG, SectorSVG, EllipseSVG } from '../../shared/lib/shapes';
+import { usePendingSave } from '../../shared/store/pending-save-store';
+import { useShapeCapture } from '../../shared/hooks/use-shape-capture';
 import type { ToolProps, CalculationData } from '../../shared/types';
 
 type Mode = 'circle' | 'sector' | 'ellipse';
 
 export default function CircleSector({ onSave }: ToolProps) {
   const [inputs, setInputs] = useState<Record<string, string>>({});
-  const [result, setResult] = useState<{ value: string; details: string } | null>(null);
+  const [result, setResult] = useState<{ value: string; details: string; rawValue?: number } | null>(null);
   const [mode, setMode] = useState<Mode>('circle');
   const { formatArea } = useUnits();
+  const { shapeRef, capture } = useShapeCapture();
 
   const handleInput = (key: string, value: string) => {
     setInputs((prev) => ({ ...prev, [key]: value }));
@@ -46,7 +50,18 @@ export default function CircleSector({ onSave }: ToolProps) {
     }
 
     if (isNaN(area) || area <= 0) return;
-    setResult({ value: formatArea(area), details });
+    const __v = formatArea(area);
+    setResult({ value: __v, details, rawValue: area });
+    usePendingSave.getState().set({
+      toolId: 'circle-sector',
+      toolName: 'الدائرة والقطاعات',
+      inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+      result: __v,
+      details,
+      unit: 'م²',
+      image: capture(),
+      timestamp: Date.now(),
+    });
   };
 
   const handleSave = () => {
@@ -58,6 +73,7 @@ export default function CircleSector({ onSave }: ToolProps) {
       result: result.value,
       details: result.details,
       unit: 'م²',
+      image: capture(),
       timestamp: Date.now(),
     });
   };
@@ -65,29 +81,15 @@ export default function CircleSector({ onSave }: ToolProps) {
   return (
     <div className="space-y-4">
       <Card>
-        <div className="mb-4 flex justify-center">
+        <div ref={shapeRef} className="mb-4 flex justify-center">
           {mode === 'circle' && (
-            <svg viewBox="0 0 120 120" className="h-28 w-full max-w-xs">
-              <circle cx="60" cy="60" r="40" fill="none" stroke="currentColor" strokeWidth="2" className="text-primary" />
-              <line x1="60" y1="60" x2="100" y2="60" stroke="currentColor" strokeWidth="1" strokeDasharray="3" className="text-yellow-500" />
-              <text x="82" y="55" fontSize="10" fill="currentColor" className="fill-yellow-500">r</text>
-            </svg>
+            <CircleSVG r={parseFloat(inputs['r'] || '5') || 5} />
           )}
           {mode === 'sector' && (
-            <svg viewBox="0 0 120 120" className="h-28 w-full max-w-xs">
-              <circle cx="60" cy="60" r="40" fill="none" stroke="currentColor" strokeWidth="1" className="text-white/30" />
-              <path d="M60,60 L60,20 A40,40 0 0,1 96.6,40 Z" fill="none" stroke="currentColor" strokeWidth="2" className="text-primary" />
-              <line x1="60" y1="60" x2="100" y2="60" stroke="currentColor" strokeWidth="1" strokeDasharray="3" className="text-yellow-500" />
-            </svg>
+            <SectorSVG r={parseFloat(inputs['r'] || '5') || 5} angle={parseFloat(inputs['angle'] || '60') || 60} />
           )}
           {mode === 'ellipse' && (
-            <svg viewBox="0 0 120 80" className="h-24 w-full max-w-xs">
-              <ellipse cx="60" cy="40" rx="45" ry="25" fill="none" stroke="currentColor" strokeWidth="2" className="text-primary" />
-              <line x1="15" y1="40" x2="60" y2="40" stroke="currentColor" strokeWidth="1" strokeDasharray="3" className="text-yellow-500" />
-              <text x="32" y="37" fontSize="9" fill="currentColor" className="fill-yellow-500">a</text>
-              <line x1="60" y1="40" x2="60" y2="15" stroke="currentColor" strokeWidth="1" strokeDasharray="3" className="text-green-500" />
-              <text x="62" y="30" fontSize="9" fill="currentColor" className="fill-green-500">b</text>
-            </svg>
+            <EllipseSVG a={parseFloat(inputs['a'] || '6') || 6} b={parseFloat(inputs['b'] || '4') || 4} />
           )}
         </div>
 
@@ -101,7 +103,7 @@ export default function CircleSector({ onSave }: ToolProps) {
           <Input label="نصف القطر (r)" placeholder="مثلاً 5" icon={<Circle className="h-4 w-4" />} suffix="م" value={inputs['r'] || ''} onChange={(e) => handleInput('r', e.target.value)} />
         )}
         {mode === 'sector' && (
-          <Input label="الزاوية (°)" placeholder="مثلاً 60" icon={<Radius className="h-4 w-4" />} suffix="°" value={inputs['angle'] || ''} onChange={(e) => handleInput('angle', e.target.value)} />
+          <Input label="الزاوية (°)" placeholder="مثلاً 60" icon={<CircleDot className="h-4 w-4" />} suffix="°" value={inputs['angle'] || ''} onChange={(e) => handleInput('angle', e.target.value)} />
         )}
         {mode === 'ellipse' && (
           <>
@@ -118,6 +120,8 @@ export default function CircleSector({ onSave }: ToolProps) {
           title="النتيجة"
           result={result.value}
           details={result.details}
+          rawValue={result.rawValue}
+          unitType="area"
           onSave={handleSave}
           icon={<Calculator className="h-5 w-5" />}
         />

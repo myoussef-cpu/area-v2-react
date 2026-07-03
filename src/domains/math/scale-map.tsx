@@ -6,6 +6,7 @@ import { Select } from '../../shared/ui/select';
 import { Button } from '../../shared/ui/button';
 import { ResultCard } from '../../shared/ui/result-card';
 import type { ToolProps } from '../../shared/types';
+import { usePendingSave } from '../../shared/store/pending-save-store';
 
 const MODES = [
   { label: 'حساب المسافة على الخريطة', value: 'map' },
@@ -38,17 +39,50 @@ export default function ScaleMap({ onSave }: ToolProps) {
       if (!actual || !scaleNum) return;
       const map = actual / scaleNum;
       const unitLabel = unit === 'm' ? 'م' : unit === 'km' ? 'كم' : 'سم';
-      setResult({ value: `${map.toFixed(4)} ${unitLabel}`, details: `المسافة على الخريطة = المسافة الفعلية ÷ مقياس الرسم\n= ${actual} ÷ ${scaleNum} = ${map.toFixed(4)} ${unitLabel}` });
+      const __v = `${map.toFixed(4)} ${unitLabel}`;
+      const __d = `المسافة على الخريطة = المسافة الفعلية ÷ مقياس الرسم\n= ${actual} ÷ ${scaleNum} = ${map.toFixed(4)} ${unitLabel}`;
+      setResult({ value: __v, details: __d });
+      usePendingSave.getState().set({
+        toolId: 'scale-map',
+        toolName: 'مقياس الرسم',
+        inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+        result: __v,
+        details: __d,
+        unit: '',
+        timestamp: Date.now(),
+      });
     } else if (mode === 'actual') {
       if (!mapDist || !scaleNum) return;
       const act = mapDist * scaleNum;
       const unitLabel = unit === 'm' ? 'م' : unit === 'km' ? 'كم' : 'سم';
       const actKm = unit === 'm' ? act / 1000 : unit === 'km' ? act : act / 100000;
-      setResult({ value: `${act.toFixed(2)} ${unitLabel} (${actKm.toFixed(4)} كم)`, details: `المسافة الفعلية = المسافة على الخريطة × مقياس الرسم\n= ${mapDist} × ${scaleNum} = ${act.toFixed(2)} ${unitLabel}` });
+      const __v = `${act.toFixed(2)} ${unitLabel} (${actKm.toFixed(4)} كم)`;
+      const __d = `المسافة الفعلية = المسافة على الخريطة × مقياس الرسم\n= ${mapDist} × ${scaleNum} = ${act.toFixed(2)} ${unitLabel}`;
+      setResult({ value: __v, details: __d });
+      usePendingSave.getState().set({
+        toolId: 'scale-map',
+        toolName: 'مقياس الرسم',
+        inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+        result: __v,
+        details: __d,
+        unit: '',
+        timestamp: Date.now(),
+      });
     } else {
       if (!actual || !mapDist) return;
       const s = actual / mapDist;
-      setResult({ value: `1 : ${Math.round(s).toLocaleString()}`, details: `مقياس الرسم = المسافة الفعلية ÷ المسافة على الخريطة\n= ${actual} ÷ ${mapDist} = ${s.toFixed(0)}\nأي 1 : ${Math.round(s).toLocaleString()}` });
+      const __v = `1 : ${Math.round(s).toLocaleString()}`;
+      const __d = `مقياس الرسم = المسافة الفعلية ÷ المسافة على الخريطة\n= ${actual} ÷ ${mapDist} = ${s.toFixed(0)}\nأي 1 : ${Math.round(s).toLocaleString()}`;
+      setResult({ value: __v, details: __d });
+      usePendingSave.getState().set({
+        toolId: 'scale-map',
+        toolName: 'مقياس الرسم',
+        inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+        result: __v,
+        details: __d,
+        unit: '',
+        timestamp: Date.now(),
+      });
     }
   };
 
@@ -73,23 +107,17 @@ export default function ScaleMap({ onSave }: ToolProps) {
           <Select label="وحدة المسافة" value={unit} onChange={(e) => setUnit(e.target.value)} options={DIST_UNITS} />
         )}
         {mode !== 'map' && (
-          <div className="mb-4">
-            <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">المسافة الفعلية</label>
-            <Input type="number" value={inputs['actual'] || ''} onChange={(e) => handleInput('actual', e.target.value)} placeholder="المسافة الفعلية" />
-          </div>
+          <Input label="المسافة الفعلية" type="number" value={inputs['actual'] || ''} onChange={(e) => handleInput('actual', e.target.value)} placeholder="المسافة الفعلية" />
         )}
         {mode !== 'actual' && (
-          <div className="mb-4">
-            <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">المسافة على الخريطة</label>
-            <Input type="number" value={inputs['mapDist'] || ''} onChange={(e) => handleInput('mapDist', e.target.value)} placeholder="المسافة على الخريطة" />
-          </div>
+          <Input label="المسافة على الخريطة" type="number" value={inputs['mapDist'] || ''} onChange={(e) => handleInput('mapDist', e.target.value)} placeholder="المسافة على الخريطة" />
         )}
-        <div className="mb-4">
-          <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">
-            {mode === 'scale' ? 'الرقم الأول (المسافة الفعلية)' : 'مقياس الرسم (مثلاً 1000 لو 1:1000)'}
-          </label>
-          <Input type="number" value={inputs['scale'] || ''} onChange={(e) => handleInput('scale', e.target.value)} placeholder="مقياس الرسم" />
-        </div>
+        <Input
+          label={mode === 'scale' ? 'الرقم الأول (المسافة الفعلية)' : 'مقياس الرسم (مثلاً 1000 لو 1:1000)'}
+          type="number" value={inputs['scale'] || ''}
+          onChange={(e) => handleInput('scale', e.target.value)}
+          placeholder="مقياس الرسم"
+        />
         <Button onClick={calculate} className="w-full mt-4">حساب</Button>
       </Card>
       {result && (

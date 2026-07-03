@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { usePendingSave } from '../../shared/store/pending-save-store';
 import { Ruler, Calculator, Weight, Hash } from 'lucide-react';
 import { Card } from '../../shared/ui/card';
 import { Input } from '../../shared/ui/input';
@@ -31,6 +32,15 @@ export default function SteelWeight({ onSave }: ToolProps) {
     setResult({
       value: `${toFixed(totalWeight)} كجم`,
       details: `قطر السيخ = ${d} مم\nالطول = ${len} م\nالعدد = ${qty}\nوزن المتر الطولي = ${toFixed(weightPerMeter * 1000, 1)} كجم/م\nوزن السيخ الواحد = ${toFixed(barWeight)} كجم\nالوزن الإجمالي = ${toFixed(totalWeight)} كجم = ${toFixed(totalWeight / 1000, 3)} طن`,
+    });
+    usePendingSave.getState().set({
+      toolId: 'steel-weight',
+      toolName: 'وزن الحديد',
+      inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+      result: `${toFixed(totalWeight)} كجم`,
+      details: `قطر السيخ = ${d} مم\nالطول = ${len} م\nالعدد = ${qty}\nوزن المتر الطولي = ${toFixed(weightPerMeter * 1000, 1)} كجم/م\nوزن السيخ الواحد = ${toFixed(barWeight)} كجم\nالوزن الإجمالي = ${toFixed(totalWeight)} كجم = ${toFixed(totalWeight / 1000, 3)} طن`,
+      unit: 'كجم',
+      timestamp: Date.now(),
     });
   };
 

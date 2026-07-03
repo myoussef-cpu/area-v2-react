@@ -5,6 +5,7 @@ import { Input } from '../../shared/ui/input';
 import { Select } from '../../shared/ui/select';
 import { Button } from '../../shared/ui/button';
 import { ResultCard } from '../../shared/ui/result-card';
+import { usePendingSave } from '../../shared/store/pending-save-store';
 import type { ToolProps } from '../../shared/types';
 
 const MODES = [
@@ -36,20 +37,50 @@ export default function OhmsLaw({ onSave }: ToolProps) {
       detail = `I = V / R = ${v} / ${r} = ${val.toFixed(3)} A`;
       const p = v * val;
       detail += `\nP = V × I = ${v} × ${val.toFixed(3)} = ${p.toFixed(2)} W`;
-      setResult({ value: `${val.toFixed(3)} أمبير (A)`, details: detail });
+      const __v1 = `${val.toFixed(3)} أمبير (A)`;
+      setResult({ value: __v1, details: detail });
+      usePendingSave.getState().set({
+        toolId: 'ohms-law',
+        toolName: 'قانون أوم',
+        inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+        result: __v1,
+        details: detail,
+        unit: '',
+        timestamp: Date.now(),
+      });
     } else if (mode === 'V') {
       val = i * r;
       detail = `V = I × R = ${i} × ${r} = ${val.toFixed(2)} V`;
       const p = val * i;
       detail += `\nP = V × I = ${val.toFixed(2)} × ${i} = ${p.toFixed(2)} W`;
-      setResult({ value: `${val.toFixed(2)} فولت (V)`, details: detail });
+      const __v2 = `${val.toFixed(2)} فولت (V)`;
+      setResult({ value: __v2, details: detail });
+      usePendingSave.getState().set({
+        toolId: 'ohms-law',
+        toolName: 'قانون أوم',
+        inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+        result: __v2,
+        details: detail,
+        unit: '',
+        timestamp: Date.now(),
+      });
     } else {
       if (i === 0) return;
       val = v / i;
       detail = `R = V / I = ${v} / ${i} = ${val.toFixed(2)} Ω`;
       const p = v * i;
       detail += `\nP = V × I = ${v} × ${i} = ${p.toFixed(2)} W`;
-      setResult({ value: `${val.toFixed(2)} أوم (Ω)`, details: detail });
+      const __v3 = `${val.toFixed(2)} أوم (Ω)`;
+      setResult({ value: __v3, details: detail });
+      usePendingSave.getState().set({
+        toolId: 'ohms-law',
+        toolName: 'قانون أوم',
+        inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+        result: __v3,
+        details: detail,
+        unit: '',
+        timestamp: Date.now(),
+      });
     }
   };
 
@@ -75,22 +106,13 @@ export default function OhmsLaw({ onSave }: ToolProps) {
       <Card>
         <Select label="وضع الحساب" value={mode} onChange={(e) => { setMode(e.target.value); setResult(null); }} options={MODES} />
         {showVoltage && (
-          <div className="mb-4">
-            <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">الجهد (V)</label>
-            <Input type="number" value={inputs['voltage'] || ''} onChange={(e) => handleInput('voltage', e.target.value)} placeholder="فولت" />
-          </div>
+          <Input label="الجهد (V)" type="number" value={inputs['voltage'] || ''} onChange={(e) => handleInput('voltage', e.target.value)} placeholder="فولت" />
         )}
         {showCurrent && (
-          <div className="mb-4">
-            <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">التيار (I)</label>
-            <Input type="number" value={inputs['current'] || ''} onChange={(e) => handleInput('current', e.target.value)} placeholder="أمبير" />
-          </div>
+          <Input label="التيار (I)" type="number" value={inputs['current'] || ''} onChange={(e) => handleInput('current', e.target.value)} placeholder="أمبير" />
         )}
         {showResistance && (
-          <div className="mb-4">
-            <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">المقاومة (R)</label>
-            <Input type="number" value={inputs['resistance'] || ''} onChange={(e) => handleInput('resistance', e.target.value)} placeholder="أوم" />
-          </div>
+          <Input label="المقاومة (R)" type="number" value={inputs['resistance'] || ''} onChange={(e) => handleInput('resistance', e.target.value)} placeholder="أوم" />
         )}
         <Button onClick={calculate} className="w-full mt-4">حساب</Button>
       </Card>

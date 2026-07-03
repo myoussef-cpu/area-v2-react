@@ -5,6 +5,7 @@ import { Input } from '../../shared/ui/input';
 import { Button } from '../../shared/ui/button';
 import { ResultCard } from '../../shared/ui/result-card';
 import type { ToolProps } from '../../shared/types';
+import { usePendingSave } from '../../shared/store/pending-save-store';
 
 export default function Quadratic({ onSave }: ToolProps) {
   const [inputs, setInputs] = useState<Record<string, string>>({});
@@ -20,7 +21,18 @@ export default function Quadratic({ onSave }: ToolProps) {
     const c = parseFloat(inputs['c'] || '0');
 
     if (a === 0) {
-      setResult({ value: 'المعامل a لا يمكن أن يكون صفراً', details: '' });
+      const __v = 'المعامل a لا يمكن أن يكون صفراً';
+      const __d = '';
+      setResult({ value: __v, details: __d });
+      usePendingSave.getState().set({
+        toolId: 'quadratic',
+        toolName: 'المعادلة التربيعية',
+        inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+        result: __v,
+        details: __d,
+        unit: '',
+        timestamp: Date.now(),
+      });
       return;
     }
 
@@ -44,7 +56,18 @@ export default function Quadratic({ onSave }: ToolProps) {
       details += `جذران تخيليان\nx₁ = ${re} + ${im}i\nx₂ = ${re} - ${im}i`;
     }
 
-    setResult({ value: roots, details });
+    const __v = roots;
+    const __d = details;
+    setResult({ value: __v, details: __d });
+    usePendingSave.getState().set({
+      toolId: 'quadratic',
+      toolName: 'المعادلة التربيعية',
+      inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+      result: __v,
+      details: __d,
+      unit: '',
+      timestamp: Date.now(),
+    });
   };
 
   const handleSave = () => {
@@ -63,18 +86,9 @@ export default function Quadratic({ onSave }: ToolProps) {
   return (
     <div className="space-y-4">
       <Card>
-        <div className="mb-4">
-          <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">المعامل a</label>
-          <Input type="number" value={inputs['a'] || ''} onChange={(e) => handleInput('a', e.target.value)} placeholder="a" />
-        </div>
-        <div className="mb-4">
-          <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">المعامل b</label>
-          <Input type="number" value={inputs['b'] || ''} onChange={(e) => handleInput('b', e.target.value)} placeholder="b" />
-        </div>
-        <div className="mb-4">
-          <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">المعامل c</label>
-          <Input type="number" value={inputs['c'] || ''} onChange={(e) => handleInput('c', e.target.value)} placeholder="c" />
-        </div>
+        <Input label="المعامل a" type="number" value={inputs['a'] || ''} onChange={(e) => handleInput('a', e.target.value)} placeholder="a" />
+        <Input label="المعامل b" type="number" value={inputs['b'] || ''} onChange={(e) => handleInput('b', e.target.value)} placeholder="b" />
+        <Input label="المعامل c" type="number" value={inputs['c'] || ''} onChange={(e) => handleInput('c', e.target.value)} placeholder="c" />
         <Button onClick={calculate} className="w-full mt-4">حساب الجذور</Button>
       </Card>
       {result && (

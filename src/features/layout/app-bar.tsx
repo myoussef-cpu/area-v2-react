@@ -1,6 +1,8 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Moon, Sun, Settings, ChevronRight } from 'lucide-react';
+import { Moon, Sun, Settings, ChevronRight, Save } from 'lucide-react';
 import { useAppStore } from '../../shared/store/app-store';
+import { usePendingSave } from '../../shared/store/pending-save-store';
+import { useResults } from '../../shared/hooks/use-results';
 import { cn } from '../../shared/lib/cn';
 
 const BOTTOM_NAV_PAGES = ['/', '/calculator', '/saved'];
@@ -9,7 +11,16 @@ export function AppBar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { darkMode, toggleDarkMode } = useAppStore();
+  const { data: pendingData, clear } = usePendingSave();
+  const { saveResult } = useResults();
   const hasBottomNav = BOTTOM_NAV_PAGES.includes(location.pathname);
+  const isToolPage = location.pathname.startsWith('/tool/');
+
+  const handleSave = () => {
+    if (!pendingData) return;
+    saveResult(pendingData);
+    clear();
+  };
 
   return (
     <header
@@ -38,6 +49,15 @@ export function AppBar() {
       </div>
 
       <div className="pointer-events-auto flex overflow-hidden rounded-2xl bg-white/75 shadow-lg backdrop-blur-2xl dark:bg-[rgba(28,28,30,0.75)]">
+        {isToolPage && pendingData && (
+          <button
+            onClick={handleSave}
+            className="flex h-10 w-10 items-center justify-center text-primary transition-all duration-200 hover:bg-black/5 active:scale-90 dark:text-[#5ac8fa] dark:hover:bg-white/10"
+            title="حفظ"
+          >
+            <Save className="h-5 w-5" />
+          </button>
+        )}
         <button
           onClick={toggleDarkMode}
           className="flex h-10 w-10 items-center justify-center text-primary transition-all duration-200 hover:bg-black/5 active:scale-90 dark:text-[#5ac8fa] dark:hover:bg-white/10"

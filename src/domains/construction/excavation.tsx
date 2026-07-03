@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { usePendingSave } from '../../shared/store/pending-save-store';
 import { Ruler, Calculator, Shovel } from 'lucide-react';
 import { Card } from '../../shared/ui/card';
 import { Input } from '../../shared/ui/input';
@@ -18,7 +19,7 @@ const SOIL_TYPES = [
 
 export default function Excavation({ onSave }: ToolProps) {
   const [inputs, setInputs] = useState<Record<string, string>>({});
-  const [result, setResult] = useState<{ value: string; details: string } | null>(null);
+  const [result, setResult] = useState<{ value: string; details: string; rawValue?: number } | null>(null);
   const { formatVolume } = useUnits();
 
   const handleInput = (key: string, value: string) => {
@@ -36,9 +37,20 @@ export default function Excavation({ onSave }: ToolProps) {
     const totalVolume = baseVolume + addition;
     const topL = L + 2 * slope * depth;
     const topW = W + 2 * slope * depth;
+    const __v = formatVolume(totalVolume);
     setResult({
-      value: formatVolume(totalVolume),
+      value: __v,
       details: `أبعاد الحفر من أعلى: ${toFixed(topL)} × ${toFixed(topW)} م\nعمق الحفر = ${depth} م\nالحجم الأساسي = ${toFixed(baseVolume)} م³\nالزيادة بالميول = ${toFixed(addition)} م³\nالحجم الكلي = ${toFixed(totalVolume)} م³`,
+      rawValue: totalVolume,
+    });
+    usePendingSave.getState().set({
+      toolId: 'excavation',
+      toolName: 'أعمال الحفر',
+      inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+      result: __v,
+      details: `أبعاد الحفر من أعلى: ${toFixed(topL)} × ${toFixed(topW)} م\nعمق الحفر = ${depth} م\nالحجم الأساسي = ${toFixed(baseVolume)} م³\nالزيادة بالميول = ${toFixed(addition)} م³\nالحجم الكلي = ${toFixed(totalVolume)} م³`,
+      unit: 'م³',
+      timestamp: Date.now(),
     });
   };
 
@@ -70,7 +82,7 @@ export default function Excavation({ onSave }: ToolProps) {
         <Button onClick={calculate} className="w-full mt-4">حساب</Button>
       </Card>
       {result && (
-        <ResultCard title="النتيجة" result={result.value} details={result.details} onSave={handleSave} icon={<Calculator className="h-5 w-5" />} />
+        <ResultCard title="النتيجة" result={result.value} details={result.details} rawValue={result.rawValue} unitType="volume" onSave={handleSave} icon={<Calculator className="h-5 w-5" />} />
       )}
     </div>
   );

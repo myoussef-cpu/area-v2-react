@@ -1,9 +1,13 @@
-import { Moon, Sun, Info, LogIn } from 'lucide-react';
+import { Info, LogIn, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { signOut } from 'firebase/auth';
+import { auth } from '../shared/lib/firebase';
 import { useAppStore } from '../shared/store/app-store';
 import { useAuthStore } from '../shared/store/auth-store';
 import { Card } from '../shared/ui/card';
-import { cn } from '../shared/lib/cn';
+import { Button } from '../shared/ui/button';
+import { Select } from '../shared/ui/select';
+import { Switch } from '@/components/animate-ui/components/radix/switch';
 
 const AREA_UNITS = [
   { value: 'm2', label: 'متر مربع (م²)' },
@@ -24,24 +28,35 @@ export default function SettingsPage() {
   const { darkMode, toggleDarkMode, areaUnit, volumeUnit, setAreaUnit, setVolumeUnit } = useAppStore();
   const user = useAuthStore((s) => s.user);
 
+  const handleSignOut = async () => {
+    if (!auth) return;
+    await signOut(auth);
+  };
+
   return (
     <div className="animate-ios-slide-up py-2">
       <h2 className="mb-4 text-xl font-bold">الإعدادات</h2>
 
       {user ? (
-        <Card className="mb-4 flex items-center gap-4">
-          {user.photoURL ? (
-            <img src={user.photoURL} alt="" className="h-12 w-12 rounded-2xl object-cover" />
-          ) : (
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-lg font-bold text-primary">
-              {user.displayName?.charAt(0) || '?'}
+        <>
+          <Card className="mb-3 flex items-center gap-4">
+            {user.photoURL ? (
+              <img src={user.photoURL} alt="" className="h-12 w-12 rounded-2xl object-cover" />
+            ) : (
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-lg font-bold text-primary">
+                {user.displayName?.charAt(0) || '?'}
+              </div>
+            )}
+            <div className="flex-1">
+              <p className="text-sm font-bold">{user.displayName || 'مستخدم'}</p>
+              <p className="text-xs text-[#8e8e93]">{user.email}</p>
             </div>
-          )}
-          <div className="flex-1">
-            <p className="text-sm font-bold">{user.displayName || 'مستخدم'}</p>
-            <p className="text-xs text-[#8e8e93]">{user.email}</p>
-          </div>
-        </Card>
+          </Card>
+          <Button onClick={handleSignOut} variant="secondary" className="mb-4 w-full gap-2">
+            <LogOut className="h-4 w-4" />
+            تسجيل الخروج
+          </Button>
+        </>
       ) : (
         <Card
           onClick={() => navigate('/login')}
@@ -61,50 +76,31 @@ export default function SettingsPage() {
         <label className="mb-2 block text-xs font-bold text-[#8e8e93]">المظهر</label>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {darkMode ? <Moon className="h-5 w-5 text-primary" /> : <Sun className="h-5 w-5 text-primary" />}
             <span className="text-sm font-semibold">الوضع الداكن</span>
           </div>
-          <button
-            onClick={toggleDarkMode}
-            className={cn(
-              'relative h-7 w-12 rounded-full transition-colors',
-              darkMode ? 'bg-primary' : 'bg-black/20'
-            )}
-          >
-            <div
-              className={cn(
-                'absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform',
-                darkMode ? 'translate-x-5.5' : 'translate-x-0.5'
-              )}
-            />
-          </button>
+          <Switch
+            checked={darkMode}
+            onCheckedChange={toggleDarkMode}
+          />
         </div>
       </Card>
 
       <Card className="mb-4">
         <label className="mb-2 block text-xs font-bold text-[#8e8e93]">وحدة المساحة الافتراضية</label>
-        <select
+        <Select
+          options={AREA_UNITS}
           value={areaUnit}
-          onChange={(e) => setAreaUnit(e.target.value)}
-          className="w-full rounded-2xl border border-black/5 bg-white/70 px-4 py-3 text-right text-sm backdrop-blur-md transition-all focus:border-primary focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-white"
-        >
-          {AREA_UNITS.map((u) => (
-            <option key={u.value} value={u.value}>{u.label}</option>
-          ))}
-        </select>
+          onChange={setAreaUnit}
+        />
       </Card>
 
       <Card className="mb-4">
         <label className="mb-2 block text-xs font-bold text-[#8e8e93]">وحدة الحجم الافتراضية</label>
-        <select
+        <Select
+          options={VOLUME_UNITS}
           value={volumeUnit}
-          onChange={(e) => setVolumeUnit(e.target.value)}
-          className="w-full rounded-2xl border border-black/5 bg-white/70 px-4 py-3 text-right text-sm backdrop-blur-md transition-all focus:border-primary focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-white"
-        >
-          {VOLUME_UNITS.map((u) => (
-            <option key={u.value} value={u.value}>{u.label}</option>
-          ))}
-        </select>
+          onChange={setVolumeUnit}
+        />
       </Card>
 
       <Card className="mb-4">
@@ -114,8 +110,7 @@ export default function SettingsPage() {
           </div>
           <div>
             <p className="text-sm font-bold">المهندس</p>
-            <p className="text-xs text-[#8e8e93]">الإصدار 1.0.0</p>
-            <p className="text-xs text-[#8e8e93]">آلة حاسبة هندسية متكاملة</p>
+            <p className="text-xs text-[#8e8e93]">الإصدار 1.1.0</p>
           </div>
         </div>
       </Card>

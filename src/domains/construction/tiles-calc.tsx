@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { usePendingSave } from '../../shared/store/pending-save-store';
 import { Ruler, Calculator, Grid3X3 } from 'lucide-react';
 import { Card } from '../../shared/ui/card';
 import { Input } from '../../shared/ui/input';
@@ -36,6 +37,15 @@ export default function TilesCalc({ onSave }: ToolProps) {
     setResult({
       value: `${tilesNeeded} بلاطة`,
       details: `مساحة الغرفة = ${roomL} × ${roomW} = ${toFixed(roomArea)} م²\nمقاس البلاط: ${tile.label}\nعدد البلاط المطلوب (بفاقد ١٠٪) = ${tilesNeeded} بلاطة\nعدد الكراتين = ${boxesNeeded} كرتونة\nعدد البلاط في الكرتونة = ${tile.perBox}`,
+    });
+    usePendingSave.getState().set({
+      toolId: 'tiles-calc',
+      toolName: 'حساب السيراميك',
+      inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+      result: `${tilesNeeded} بلاطة`,
+      details: `مساحة الغرفة = ${roomL} × ${roomW} = ${toFixed(roomArea)} م²\nمقاس البلاط: ${tile.label}\nعدد البلاط المطلوب (بفاقد ١٠٪) = ${tilesNeeded} بلاطة\nعدد الكراتين = ${boxesNeeded} كرتونة\nعدد البلاط في الكرتونة = ${tile.perBox}`,
+      unit: 'بلاطة',
+      timestamp: Date.now(),
     });
   };
 

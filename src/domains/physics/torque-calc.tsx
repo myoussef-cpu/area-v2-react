@@ -5,6 +5,7 @@ import { Input } from '../../shared/ui/input';
 import { Button } from '../../shared/ui/button';
 import { ResultCard } from '../../shared/ui/result-card';
 import type { ToolProps } from '../../shared/types';
+import { usePendingSave } from '../../shared/store/pending-save-store';
 
 export default function TorqueCalc({ onSave }: ToolProps) {
   const [inputs, setInputs] = useState<Record<string, string>>({});
@@ -37,7 +38,17 @@ P = ${power.toFixed(2)} واط = ${powerKw.toFixed(3)} كيلوواط
 P = ${powerHp.toFixed(3)} حصان`;
       }
 
-      setResult({ value: `${torqueNm.toFixed(2)} نيوتن.متر (N·m)`, details });
+      const __v = `${torqueNm.toFixed(2)} نيوتن.متر (N·m)`;
+      setResult({ value: __v, details });
+      usePendingSave.getState().set({
+        toolId: 'torque-calc',
+        toolName: 'حساب العزم',
+        inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+        result: __v,
+        details,
+        unit: 'N·m',
+        timestamp: Date.now(),
+      });
     }
   };
 
@@ -57,18 +68,9 @@ P = ${powerHp.toFixed(3)} حصان`;
   return (
     <div className="space-y-4">
       <Card>
-        <div className="mb-4">
-          <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">القوة (نيوتن)</label>
-          <Input type="number" value={inputs['force'] || ''} onChange={(e) => handleInput('force', e.target.value)} placeholder="N" />
-        </div>
-        <div className="mb-4">
-          <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">المسافة (متر)</label>
-          <Input type="number" value={inputs['dist'] || ''} onChange={(e) => handleInput('dist', e.target.value)} placeholder="م" />
-        </div>
-        <div className="mb-4">
-          <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">سرعة الدوران (دورة/دقيقة) - اختياري</label>
-          <Input type="number" value={inputs['rpm'] || ''} onChange={(e) => handleInput('rpm', e.target.value)} placeholder="RPM" />
-        </div>
+        <Input label="القوة (نيوتن)" type="number" value={inputs['force'] || ''} onChange={(e) => handleInput('force', e.target.value)} placeholder="N" />
+        <Input label="المسافة (متر)" type="number" value={inputs['dist'] || ''} onChange={(e) => handleInput('dist', e.target.value)} placeholder="م" />
+        <Input label="سرعة الدوران (دورة/دقيقة) - اختياري" type="number" value={inputs['rpm'] || ''} onChange={(e) => handleInput('rpm', e.target.value)} placeholder="RPM" />
         <Button onClick={calculate} className="w-full mt-4">حساب</Button>
       </Card>
       {result && (

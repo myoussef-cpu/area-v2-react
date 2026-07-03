@@ -5,6 +5,7 @@ import { Input } from '../../shared/ui/input';
 import { Button } from '../../shared/ui/button';
 import { ResultCard } from '../../shared/ui/result-card';
 import type { ToolProps } from '../../shared/types';
+import { usePendingSave } from '../../shared/store/pending-save-store';
 
 export default function UnitPrice({ onSave }: ToolProps) {
   const [inputs, setInputs] = useState<Record<string, string>>({});
@@ -31,9 +32,29 @@ export default function UnitPrice({ onSave }: ToolProps) {
       const cheaper = up1 < up2 ? 'الأول' : 'الثاني';
       details += `\n\nالمنتج الثاني:\n${qty2} وحدة بسعر ${price2}\nسعر الوحدة = ${price2} / ${qty2} = ${up2.toFixed(4)}`;
       details += `\n\nالفرق: ${diff.toFixed(4)}\nالمنتج ${cheaper} أرخص`;
-      setResult({ value: `${cheaper === 'الأول' ? up1.toFixed(4) : up2.toFixed(4)}`, details });
+      const __v = `${cheaper === 'الأول' ? up1.toFixed(4) : up2.toFixed(4)}`;
+      setResult({ value: __v, details });
+      usePendingSave.getState().set({
+        toolId: 'unit-price',
+        toolName: 'سعر الوحدة',
+        inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+        result: __v,
+        details,
+        unit: '',
+        timestamp: Date.now(),
+      });
     } else {
-      setResult({ value: `${up1.toFixed(4)}`, details });
+      const __v = `${up1.toFixed(4)}`;
+      setResult({ value: __v, details });
+      usePendingSave.getState().set({
+        toolId: 'unit-price',
+        toolName: 'سعر الوحدة',
+        inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+        result: __v,
+        details,
+        unit: '',
+        timestamp: Date.now(),
+      });
     }
   };
 
@@ -54,23 +75,11 @@ export default function UnitPrice({ onSave }: ToolProps) {
     <div className="space-y-4">
       <Card>
         <p className="mb-3 text-sm font-semibold text-[#1c1c1e] dark:text-white">المنتج الأول</p>
-        <div className="mb-4">
-          <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">الكمية</label>
-          <Input type="number" value={inputs['qty1'] || ''} onChange={(e) => handleInput('qty1', e.target.value)} placeholder="الكمية" />
-        </div>
-        <div className="mb-4">
-          <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">السعر</label>
-          <Input type="number" value={inputs['price1'] || ''} onChange={(e) => handleInput('price1', e.target.value)} placeholder="السعر" />
-        </div>
+        <Input label="الكمية" type="number" value={inputs['qty1'] || ''} onChange={(e) => handleInput('qty1', e.target.value)} placeholder="الكمية" />
+        <Input label="السعر" type="number" value={inputs['price1'] || ''} onChange={(e) => handleInput('price1', e.target.value)} placeholder="السعر" />
         <p className="mb-3 mt-6 text-sm font-semibold text-[#1c1c1e] dark:text-white">المنتج الثاني (اختياري)</p>
-        <div className="mb-4">
-          <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">الكمية</label>
-          <Input type="number" value={inputs['qty2'] || ''} onChange={(e) => handleInput('qty2', e.target.value)} placeholder="الكمية" />
-        </div>
-        <div className="mb-4">
-          <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">السعر</label>
-          <Input type="number" value={inputs['price2'] || ''} onChange={(e) => handleInput('price2', e.target.value)} placeholder="السعر" />
-        </div>
+        <Input label="الكمية" type="number" value={inputs['qty2'] || ''} onChange={(e) => handleInput('qty2', e.target.value)} placeholder="الكمية" />
+        <Input label="السعر" type="number" value={inputs['price2'] || ''} onChange={(e) => handleInput('price2', e.target.value)} placeholder="السعر" />
         <Button onClick={calculate} className="w-full mt-4">مقارنة الأسعار</Button>
       </Card>
       {result && (

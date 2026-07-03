@@ -5,6 +5,7 @@ import { Input } from '../../shared/ui/input';
 import { Select } from '../../shared/ui/select';
 import { Button } from '../../shared/ui/button';
 import { ResultCard } from '../../shared/ui/result-card';
+import { usePendingSave } from '../../shared/store/pending-save-store';
 import type { ToolProps } from '../../shared/types';
 
 const INSTALL_METHODS = [
@@ -62,7 +63,18 @@ export default function WireSize({ onSave }: ToolProps) {
 سعة التحمل: ${suggestion.ampacity[methodKey]} أمبير
 هبوط الجهد المقدر: ${vDrop.toFixed(2)} فولت (${vDropPct.toFixed(2)}%)`;
 
-    setResult({ value: `${suggestion.size} مم²`, details });
+    const __v = `${suggestion.size} مم²`;
+    const __d = details;
+    setResult({ value: __v, details: __d });
+    usePendingSave.getState().set({
+      toolId: 'wire-size',
+      toolName: 'مقاسات الأسلاك',
+      inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+      result: __v,
+      details: __d,
+      unit: 'mm²',
+      timestamp: Date.now(),
+    });
   };
 
   const handleSave = () => {
@@ -82,18 +94,9 @@ export default function WireSize({ onSave }: ToolProps) {
     <div className="space-y-4">
       <Card>
         <Select label="طريقة التركيب" value={method} onChange={(e) => setMethod(e.target.value)} options={INSTALL_METHODS} />
-        <div className="mb-4">
-          <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">تيار الحمل (أمبير)</label>
-          <Input type="number" value={inputs['current'] || ''} onChange={(e) => handleInput('current', e.target.value)} placeholder="أمبير" />
-        </div>
-        <div className="mb-4">
-          <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">الجهد (فولت)</label>
-          <Input type="number" value={inputs['voltage'] || ''} onChange={(e) => handleInput('voltage', e.target.value)} placeholder="فولت" />
-        </div>
-        <div className="mb-4">
-          <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">طول الكابل (متر)</label>
-          <Input type="number" value={inputs['length'] || ''} onChange={(e) => handleInput('length', e.target.value)} placeholder="متر" />
-        </div>
+        <Input label="تيار الحمل (أمبير)" type="number" value={inputs['current'] || ''} onChange={(e) => handleInput('current', e.target.value)} placeholder="أمبير" />
+        <Input label="الجهد (فولت)" type="number" value={inputs['voltage'] || ''} onChange={(e) => handleInput('voltage', e.target.value)} placeholder="فولت" />
+        <Input label="طول الكابل (متر)" type="number" value={inputs['length'] || ''} onChange={(e) => handleInput('length', e.target.value)} placeholder="متر" />
         <Button onClick={calculate} className="w-full mt-4">حساب المقاس المناسب</Button>
       </Card>
       {result && (

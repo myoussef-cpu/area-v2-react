@@ -28,6 +28,7 @@ export function useResults() {
         details: data.details,
         unit: data.unit,
         timestamp: data.timestamp || Date.now(),
+        image: data.image,
         synced: false,
       };
 

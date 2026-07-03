@@ -7,6 +7,7 @@ export interface CalculationResult {
   details: string;
   unit: string;
   timestamp: number;
+  image?: string;
   cloudId?: string;
   synced?: boolean;
 }

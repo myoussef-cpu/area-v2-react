@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { usePendingSave } from '../../shared/store/pending-save-store';
 import { Ruler, Calculator, PaintRoller } from 'lucide-react';
 import { Card } from '../../shared/ui/card';
 import { Input } from '../../shared/ui/input';
@@ -27,6 +28,15 @@ export default function PaintCalc({ onSave }: ToolProps) {
     setResult({
       value: `${toFixed(liters, 1)} لتر`,
       details: `مساحة الحائط = ${toFixed(area)} م²\nعدد الوجوه = ${coats}\nالمساحة الكلية = ${toFixed(totalArea)} م²\nمعدل التغطية = ${coverage} م²/لتر\nكمية الدهان = ${toFixed(liters, 1)} لتر\nعلب ٤ لتر ≈ ${cans4L}\nعلب ١ لتر ≈ ${cans1L}`,
+    });
+    usePendingSave.getState().set({
+      toolId: 'paint-calc',
+      toolName: 'حساب الدهانات',
+      inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+      result: `${toFixed(liters, 1)} لتر`,
+      details: `مساحة الحائط = ${toFixed(area)} م²\nعدد الوجوه = ${coats}\nالمساحة الكلية = ${toFixed(totalArea)} م²\nمعدل التغطية = ${coverage} م²/لتر\nكمية الدهان = ${toFixed(liters, 1)} لتر\nعلب ٤ لتر ≈ ${cans4L}\nعلب ١ لتر ≈ ${cans1L}`,
+      unit: 'لتر',
+      timestamp: Date.now(),
     });
   };
 

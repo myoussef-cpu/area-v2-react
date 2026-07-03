@@ -1,7 +1,8 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { getToolById } from '../domains/registry';
 import { useResults } from '../shared/hooks/use-results';
+import { usePendingSave } from '../shared/store/pending-save-store';
 import type { CalculationData } from '../shared/types';
 
 const TOOL_COMPONENTS: Record<string, React.LazyExoticComponent<React.ComponentType<{ onSave: (d: CalculationData) => void }>>> = {
@@ -87,6 +88,10 @@ export default function ToolPage() {
       </div>
     );
   }
+
+  useEffect(() => {
+    return () => { usePendingSave.getState().clear(); };
+  }, []);
 
   return (
     <div className="animate-ios-slide-up py-2">

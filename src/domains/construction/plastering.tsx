@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { usePendingSave } from '../../shared/store/pending-save-store';
 import { Ruler, Calculator, Brush } from 'lucide-react';
 import { Card } from '../../shared/ui/card';
 import { Input } from '../../shared/ui/input';
@@ -28,6 +29,15 @@ export default function Plastering({ onSave }: ToolProps) {
     setResult({
       value: `${toFixed(cementKg)} كجم أسمنت`,
       details: `مساحة المحارة = ${toFixed(area)} م²\nسماكة المحارة = ${thick} مم\nحجم المونة = ${toFixed(volume)} م³\nحجم المونة الجافة = ${toFixed(dryVolume)} م³\nالأسمنت (نسبة ١:٤) = ${toFixed(cementKg)} كجم ≈ ${toFixed(cementKg / 50)} شيكارة\nالرمل = ${toFixed(sandM3)} م³`,
+    });
+    usePendingSave.getState().set({
+      toolId: 'plastering',
+      toolName: 'أعمال المحارة',
+      inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+      result: `${toFixed(cementKg)} كجم أسمنت`,
+      details: `مساحة المحارة = ${toFixed(area)} م²\nسماكة المحارة = ${thick} مم\nحجم المونة = ${toFixed(volume)} م³\nحجم المونة الجافة = ${toFixed(dryVolume)} م³\nالأسمنت (نسبة ١:٤) = ${toFixed(cementKg)} كجم ≈ ${toFixed(cementKg / 50)} شيكارة\nالرمل = ${toFixed(sandM3)} م³`,
+      unit: 'كجم',
+      timestamp: Date.now(),
     });
   };
 

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { usePendingSave } from '../../shared/store/pending-save-store';
 import { Ruler, Calculator, BrickWall } from 'lucide-react';
 import { Card } from '../../shared/ui/card';
 import { Input } from '../../shared/ui/input';
@@ -38,6 +39,15 @@ export default function BricksCalc({ onSave }: ToolProps) {
     setResult({
       value: `${bricksCount.toLocaleString()} طوبة`,
       details: `نوع الطوب: ${brick.label}\nمساحة الحائط = ${wallL} × ${wallH} = ${toFixed(wallArea)} م²\nعدد الطوب = ${bricksCount.toLocaleString()} طوبة\nحجم المونة = ${toFixed(mortarVol)} م³\nالأسمنت ≈ ${toFixed(cementKg)} كجم\nالرمل ≈ ${toFixed(sandM3)} م³`,
+    });
+    usePendingSave.getState().set({
+      toolId: 'bricks-calc',
+      toolName: 'حساب الطوب',
+      inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+      result: `${bricksCount.toLocaleString()} طوبة`,
+      details: `نوع الطوب: ${brick.label}\nمساحة الحائط = ${wallL} × ${wallH} = ${toFixed(wallArea)} م²\nعدد الطوب = ${bricksCount.toLocaleString()} طوبة\nحجم المونة = ${toFixed(mortarVol)} م³\nالأسمنت ≈ ${toFixed(cementKg)} كجم\nالرمل ≈ ${toFixed(sandM3)} م³`,
+      unit: 'طوبة',
+      timestamp: Date.now(),
     });
   };
 

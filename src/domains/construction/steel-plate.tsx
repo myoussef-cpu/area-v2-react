@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { usePendingSave } from '../../shared/store/pending-save-store';
 import { Ruler, Calculator, Weight } from 'lucide-react';
 import { Card } from '../../shared/ui/card';
 import { Input } from '../../shared/ui/input';
@@ -36,6 +37,15 @@ export default function SteelPlate({ onSave }: ToolProps) {
     setResult({
       value: `${toFixed(weight)} كجم`,
       details: `المادة: ${mat.label}\nالطول = ${L} م\nالعرض = ${W} م\nالسماكة = ${T} مم\nالمساحة = ${toFixed(area)} م²\nالحجم = ${toFixed(volume)} م³\nالكثافة = ${mat.density} كجم/م³\nالوزن = ${toFixed(weight)} كجم`,
+    });
+    usePendingSave.getState().set({
+      toolId: 'steel-plate',
+      toolName: 'وزن الصاج',
+      inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+      result: `${toFixed(weight)} كجم`,
+      details: `المادة: ${mat.label}\nالطول = ${L} م\nالعرض = ${W} م\nالسماكة = ${T} مم\nالمساحة = ${toFixed(area)} م²\nالحجم = ${toFixed(volume)} م³\nالكثافة = ${mat.density} كجم/م³\nالوزن = ${toFixed(weight)} كجم`,
+      unit: 'كجم',
+      timestamp: Date.now(),
     });
   };
 

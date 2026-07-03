@@ -5,6 +5,7 @@ import { Input } from '../../shared/ui/input';
 import { Button } from '../../shared/ui/button';
 import { ResultCard } from '../../shared/ui/result-card';
 import type { ToolProps } from '../../shared/types';
+import { usePendingSave } from '../../shared/store/pending-save-store';
 
 const G = 9.81;
 
@@ -33,7 +34,17 @@ F = ${mass} × ${a.toFixed(2)} = ${f.toFixed(2)} نيوتن
 F = ${fkN.toFixed(4)} كيلو نيوتن
 الوزن (W) = ${mass} × ${G} = ${w.toFixed(2)} نيوتن`;
 
-    setResult({ value: `${f.toFixed(2)} نيوتن (N)`, details });
+    const __v = `${f.toFixed(2)} نيوتن (N)`;
+    setResult({ value: __v, details });
+    usePendingSave.getState().set({
+      toolId: 'force-calc',
+      toolName: 'حساب القوة',
+      inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+      result: __v,
+      details,
+      unit: 'N',
+      timestamp: Date.now(),
+    });
   };
 
   const handleSave = () => {
@@ -52,14 +63,8 @@ F = ${fkN.toFixed(4)} كيلو نيوتن
   return (
     <div className="space-y-4">
       <Card>
-        <div className="mb-4">
-          <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">الكتلة (كجم)</label>
-          <Input type="number" value={inputs['mass'] || ''} onChange={(e) => handleInput('mass', e.target.value)} placeholder="كجم" />
-        </div>
-        <div className="mb-4">
-          <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">التسارع (م/ث²)</label>
-          <Input type="number" value={inputs['accel'] || ''} onChange={(e) => handleInput('accel', e.target.value)} placeholder="م/ث²" />
-        </div>
+        <Input label="الكتلة (كجم)" type="number" value={inputs['mass'] || ''} onChange={(e) => handleInput('mass', e.target.value)} placeholder="كجم" />
+        <Input label="التسارع (م/ث²)" type="number" value={inputs['accel'] || ''} onChange={(e) => handleInput('accel', e.target.value)} placeholder="م/ث²" />
         <label className="mb-3 flex items-center gap-2 text-sm font-medium text-[#1c1c1e] dark:text-white">
           <input type="checkbox" checked={inputs['gravity'] === 'true'} onChange={(e) => handleInput('gravity', e.target.checked ? 'true' : 'false')} className="h-4 w-4 rounded border-gray-300" />
           استخدام تسارع الجاذبية (g = 9.81 م/ث²)

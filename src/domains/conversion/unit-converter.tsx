@@ -7,6 +7,7 @@ import { Button } from '../../shared/ui/button';
 import { ResultCard } from '../../shared/ui/result-card';
 import { convertUnit, convertTemperature } from '../../shared/lib/units';
 import { formatFeddan } from '../../shared/lib/feddan';
+import { usePendingSave } from '../../shared/store/pending-save-store';
 import type { ToolProps } from '../../shared/types';
 
 export interface UnitDef {
@@ -65,6 +66,15 @@ export default function UnitConverter({ onSave, config }: ToolProps & { config: 
     }
 
     setResult({ value: resultValue, details });
+    usePendingSave.getState().set({
+      toolId: config.toolId,
+      toolName: config.title,
+      inputs: { value: parseFloat(value || '0'), fromUnit: fromUnit.charCodeAt(0), toUnit: toUnit.charCodeAt(0) },
+      result: resultValue,
+      details,
+      unit: config.units[toUnit]?.label || '',
+      timestamp: Date.now(),
+    });
   };
 
   const handleSave = () => {
@@ -83,15 +93,12 @@ export default function UnitConverter({ onSave, config }: ToolProps & { config: 
   return (
     <div className="space-y-4">
       <Card>
-        <div className="mb-4">
-          <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">القيمة</label>
-          <Input
+        <Input label="القيمة"
             type="number"
             value={value}
             onChange={(e) => setValue(e.target.value)}
             placeholder="أدخل القيمة"
           />
-        </div>
         <Select
           label="من"
           value={fromUnit}

@@ -4,6 +4,7 @@ import { Card } from '../../shared/ui/card';
 import { Button } from '../../shared/ui/button';
 import { ResultCard } from '../../shared/ui/result-card';
 import type { ToolProps } from '../../shared/types';
+import { usePendingSave } from '../../shared/store/pending-save-store';
 
 export default function AvgCalc({ onSave }: ToolProps) {
   const [input, setInput] = useState('');
@@ -56,7 +57,17 @@ export default function AvgCalc({ onSave }: ToolProps) {
 الأصغر: ${min}
 الأكبر: ${max}`;
 
-    setResult({ value: mean.toFixed(4), details });
+    const __v = mean.toFixed(4);
+    setResult({ value: __v, details });
+    usePendingSave.getState().set({
+      toolId: 'avg-calc',
+      toolName: 'المتوسط الحسابي',
+      inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+      result: __v,
+      details,
+      unit: '',
+      timestamp: Date.now(),
+    });
   };
 
   const handleSave = () => {

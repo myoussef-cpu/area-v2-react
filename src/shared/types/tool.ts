@@ -38,6 +38,7 @@ export interface CalculationData {
   details: string;
   unit: string;
   timestamp: number;
+  image?: string;
 }
 
 export const CATEGORY_META: Record<ToolCategory, { name: string; icon: string }> = {

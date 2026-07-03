@@ -6,15 +6,19 @@ import { Button } from '../../shared/ui/button';
 import { ResultCard } from '../../shared/ui/result-card';
 import { useUnits } from '../../shared/hooks/use-units';
 import { Geometry, toFixed } from '../../shared/lib/geometry';
+import { TriangleSVG } from '../../shared/lib/shapes';
+import { usePendingSave } from '../../shared/store/pending-save-store';
+import { useShapeCapture } from '../../shared/hooks/use-shape-capture';
 import type { ToolProps, CalculationData } from '../../shared/types';
 
 type Mode = 'base-height' | 'heron' | 'base-angles';
 
 export default function TriangleTool({ onSave }: ToolProps) {
   const [inputs, setInputs] = useState<Record<string, string>>({});
-  const [result, setResult] = useState<{ value: string; details: string } | null>(null);
+  const [result, setResult] = useState<{ value: string; details: string; rawValue?: number } | null>(null);
   const [mode, setMode] = useState<Mode>('base-height');
   const { formatArea } = useUnits();
+  const { shapeRef, capture } = useShapeCapture();
 
   const handleInput = (key: string, value: string) => {
     setInputs((prev) => ({ ...prev, [key]: value }));
@@ -59,7 +63,18 @@ export default function TriangleTool({ onSave }: ToolProps) {
     }
 
     if (isNaN(area) || area <= 0) return;
-    setResult({ value: formatArea(area), details });
+    const __v = formatArea(area);
+    setResult({ value: __v, details, rawValue: area });
+    usePendingSave.getState().set({
+      toolId: 'triangle',
+      toolName: 'مساحة مثلث',
+      inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+      result: __v,
+      details,
+      unit: 'م²',
+      image: capture(),
+      timestamp: Date.now(),
+    });
   };
 
   const handleSave = () => {
@@ -71,6 +86,7 @@ export default function TriangleTool({ onSave }: ToolProps) {
       result: result.value,
       details: result.details,
       unit: 'م²',
+      image: capture(),
       timestamp: Date.now(),
     });
   };
@@ -78,13 +94,27 @@ export default function TriangleTool({ onSave }: ToolProps) {
   return (
     <div className="space-y-4">
       <Card>
-        <div className="mb-4 flex justify-center">
-          <svg viewBox="0 0 160 120" className="h-28 w-full max-w-xs">
-            <polygon points="80,15 150,105 10,105" fill="none" stroke="currentColor" strokeWidth="2" className="text-primary" />
-            <text x="80" y="112" fontSize="10" textAnchor="middle" fill="currentColor">القاعدة</text>
-            <line x1="80" y1="15" x2="80" y2="105" stroke="currentColor" strokeWidth="1" strokeDasharray="4" className="text-yellow-500" />
-            <text x="85" y="65" fontSize="10" fill="currentColor" className="fill-yellow-500">h</text>
-          </svg>
+        <div ref={shapeRef} className="mb-4 flex justify-center">
+          {mode === 'base-height' && (
+            <TriangleSVG
+              base={parseFloat(inputs['base'] || '6') || 6}
+              height={parseFloat(inputs['height'] || '4') || 4}
+              showHeight
+            />
+          )}
+          {mode === 'heron' && (
+            <TriangleSVG
+              base={parseFloat(inputs['a'] || '5') || 5}
+              sideA={parseFloat(inputs['a'] || '5') || 5}
+              sideB={parseFloat(inputs['c'] || '7') || 7}
+              sideC={parseFloat(inputs['b'] || '6') || 6}
+            />
+          )}
+          {mode === 'base-angles' && (
+            <TriangleSVG
+              base={parseFloat(inputs['base'] || '6') || 6}
+            />
+          )}
         </div>
 
         <div className="mb-4 flex flex-wrap gap-2">
@@ -122,6 +152,8 @@ export default function TriangleTool({ onSave }: ToolProps) {
           title="النتيجة"
           result={result.value}
           details={result.details}
+          rawValue={result.rawValue}
+          unitType="area"
           onSave={handleSave}
           icon={<Calculator className="h-5 w-5" />}
         />

@@ -6,6 +6,7 @@ import { Select } from '../../shared/ui/select';
 import { Button } from '../../shared/ui/button';
 import { ResultCard } from '../../shared/ui/result-card';
 import type { ToolProps } from '../../shared/types';
+import { usePendingSave } from '../../shared/store/pending-save-store';
 
 const ANGLE_MODES = [
   { label: 'درجة (Degree)', value: 'deg' },
@@ -62,7 +63,17 @@ export default function Trigonometry({ onSave }: ToolProps) {
       if (['cot', 'sec', 'csc'].includes(func)) {
         details += `\n= 1/${func === 'cot' ? 'tan' : func === 'sec' ? 'cos' : 'sin'}(${val}°)`;
       }
-      setResult({ value: res.toFixed(6), details });
+      const __v = res.toFixed(6);
+      setResult({ value: __v, details });
+      usePendingSave.getState().set({
+        toolId: 'trigonometry',
+        toolName: 'حساب المثلثات',
+        inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+        result: __v,
+        details,
+        unit: '',
+        timestamp: Date.now(),
+      });
     } else {
       let res: number;
       const invFunc = func;
@@ -77,10 +88,30 @@ export default function Trigonometry({ onSave }: ToolProps) {
       if (angleUnit === 'deg') {
         const deg = (res * 180) / Math.PI;
         details = `${invName}(${val}) = ${deg.toFixed(4)}°`;
-        setResult({ value: `${deg.toFixed(4)}°`, details });
+        const __v = `${deg.toFixed(4)}°`;
+        setResult({ value: __v, details });
+        usePendingSave.getState().set({
+          toolId: 'trigonometry',
+          toolName: 'حساب المثلثات',
+          inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+          result: __v,
+          details,
+          unit: '',
+          timestamp: Date.now(),
+        });
       } else {
         details = `${invName}(${val}) = ${res.toFixed(4)} rad`;
-        setResult({ value: `${res.toFixed(4)} rad`, details });
+        const __v = `${res.toFixed(4)} rad`;
+        setResult({ value: __v, details });
+        usePendingSave.getState().set({
+          toolId: 'trigonometry',
+          toolName: 'حساب المثلثات',
+          inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+          result: __v,
+          details,
+          unit: '',
+          timestamp: Date.now(),
+        });
       }
     }
   };
@@ -106,12 +137,12 @@ export default function Trigonometry({ onSave }: ToolProps) {
         <Select label="النوع" value={mode} onChange={(e) => { setMode(e.target.value); setResult(null); }} options={[{ label: 'حساب الدالة المثلثية', value: 'direct' }, { label: 'حساب الزاوية (عكسية)', value: 'inverse' }]} />
         <Select label="وحدة الزاوية" value={angleUnit} onChange={(e) => setAngleUnit(e.target.value)} options={ANGLE_MODES} />
         <Select label="الدالة" value={func} onChange={(e) => { setFunc(e.target.value); setResult(null); }} options={funcOptions} />
-        <div className="mb-4">
-          <label className="mb-1.5 block text-sm font-semibold text-[#1c1c1e] dark:text-white">
-            {mode === 'direct' ? 'الزاوية' : 'القيمة'}
-          </label>
-          <Input type="number" value={inputs['val'] || ''} onChange={(e) => handleInput('val', e.target.value)} placeholder={mode === 'direct' ? 'الزاوية' : 'القيمة'} />
-        </div>
+        <Input
+          label={mode === 'direct' ? 'الزاوية' : 'القيمة'}
+          type="number" value={inputs['val'] || ''}
+          onChange={(e) => handleInput('val', e.target.value)}
+          placeholder={mode === 'direct' ? 'الزاوية' : 'القيمة'}
+        />
         <Button onClick={calculate} className="w-full mt-4">حساب</Button>
       </Card>
       {result && (

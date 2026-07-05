@@ -78,7 +78,7 @@ const [material, setMaterial] = useState('copper');
   return (
     <div className="space-y-4">
       <Card>
-        <Select label="مادة الكابل" value={material} onChange={(e) => setMaterial(e.target.value)} options={MATERIAL_OPTIONS} />
+        <Select label="مادة الكابل" value={material} onChange={(e) => setMaterial(e)} options={MATERIAL_OPTIONS} />
         <Input label="طول الكابل (م)" type="number" value={inputs['length'] || ''} onChange={(e) => handleInput('length', e.target.value)} placeholder="متر" />
         <Input label="تيار الحمل (أمبير)" type="number" value={inputs['current'] || ''} onChange={(e) => handleInput('current', e.target.value)} placeholder="أمبير" />
         <Input label="مساحة المقطع (مم²)" type="number" value={inputs['size'] || ''} onChange={(e) => handleInput('size', e.target.value)} placeholder="مم²" />

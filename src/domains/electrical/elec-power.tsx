@@ -72,7 +72,7 @@ Q = ${q.toFixed(3)} kVAR
   return (
     <div className="space-y-4">
       <Card>
-        <Select label="نوع الطور" value={phase} onChange={(e) => { setPhase(e.target.value); setResult(null); }} options={PHASE_OPTIONS} />
+        <Select label="نوع الطور" value={phase} onChange={(e) => { setPhase(e); setResult(null); }} options={PHASE_OPTIONS} />
         <Input label="الجهد (V)" type="number" value={inputs['voltage'] || ''} onChange={(e) => handleInput('voltage', e.target.value)} placeholder="فولت" />
         <Input label="التيار (I)" type="number" value={inputs['current'] || ''} onChange={(e) => handleInput('current', e.target.value)} placeholder="أمبير" />
         <Input label="معامل القدرة (PF)" type="number" value={inputs['pf'] || ''} onChange={(e) => handleInput('pf', e.target.value)} placeholder="0-1" step="0.01" />

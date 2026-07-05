@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type JSX } from 'react'
 
 import { Accessory } from './accessories'
 import { CLAWD_BODY, CLAWD_DARK, CLAWD_SICK, CLAWD_SICK_DARK } from './constants'

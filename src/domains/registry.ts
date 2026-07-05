@@ -1,6 +1,6 @@
-import type { ToolDefinition, ToolCategory } from '../shared/types';
+import type { ToolCategory } from '../shared/types';
 import {
-  Ruler, Circle, CircleDot, VectorSquare, Triangle, Shapes,
+  Circle, CircleDot, VectorSquare, Triangle, Shapes,
   Square, RectangleHorizontal, Diamond, Plane, CircleDotDashed,
   Box, Cuboid, Pyramid, Cone, Pill, Egg,
   HardHat, Mountain, BrickWall, Grid3X3, PaintRoller, Weight,
@@ -16,7 +16,7 @@ interface ToolEntry {
   id: string;
   name: string;
   category: ToolCategory;
-  icon: typeof DrawPolygon;
+  icon: typeof Shapes;
   description: string;
 }
 

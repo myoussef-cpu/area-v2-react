@@ -93,7 +93,7 @@ const [result, setResult] = useState<{ value: string; details: string } | null>(
   return (
     <div className="space-y-4">
       <Card>
-        <Select label="وضع الحساب" value={mode} onChange={(e) => { setMode(e.target.value); setResult(null); }} options={MODES} />
+        <Select label="وضع الحساب" value={mode} onChange={(e) => { setMode(e); setResult(null); }} options={MODES} />
         <Input
           label={mode === 'hyp' ? 'الضلع الأول (a)' : 'الوتر (c)'}
           type="number" value={inputs[mode === 'hyp' ? 'a' : 'c'] || ''}

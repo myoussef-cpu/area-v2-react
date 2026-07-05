@@ -6,7 +6,7 @@ import { Input } from '../../shared/ui/input';
 import { Button } from '../../shared/ui/button';
 import { ResultCard } from '../../shared/ui/result-card';
 import { toFixed } from '../../shared/lib/geometry';
-import type { ToolProps, CalculationData } from '../../shared/types';
+import type { ToolProps } from '../../shared/types';
 import { useToolInitializer } from '../../shared/hooks/use-tool-initializer';
 
 const STEEL_DENSITY = 7850;

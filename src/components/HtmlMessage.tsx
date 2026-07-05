@@ -26,7 +26,7 @@ function preprocessMarkdown(md: string): string {
 export function HtmlMessage({ html, dark = false }: HtmlMessageProps) {
   const rendered = useMemo(() => {
     const processed = preprocessMarkdown(html);
-    const placeholders: string[] = [];
+    const placeholders: { placeholder: string; html: string }[] = [];
     const katexized = processed.replace(/\$\$([\s\S]+?)\$\$/g, (match, formula) => {
       try {
         const rendered = katex.renderToString(formula.trim(), { displayMode: true, throwOnError: false });

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { MapPin, Crosshair, Undo2, RotateCcw, Ruler, Satellite, ShieldCheck, ShieldAlert, Activity } from 'lucide-react';
+import { Crosshair, Undo2, RotateCcw, Ruler, Satellite, ShieldCheck, ShieldAlert, Activity } from 'lucide-react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Card } from '../../shared/ui/card';
@@ -71,7 +71,6 @@ export default function GpsMeasurePage() {
   const [points, setPoints] = useState<GeoPoint[]>([]);
   const [area, setArea] = useState<number | null>(null);
   const [currentPos, setCurrentPos] = useState<GeoPoint | null>(null);
-  const [accuracy, setAccuracy] = useState(999);
   const [bestAccuracy, setBestAccuracy] = useState(999);
   const [isLocating, setIsLocating] = useState(false);
   const [ready, setReady] = useState(false);
@@ -114,7 +113,6 @@ export default function GpsMeasurePage() {
         const filtered = kfRef.current.update(latitude, longitude, rawAcc);
         const acc = Math.max(rawAcc, 0.1);
         setCurrentPos(filtered);
-        setAccuracy(acc);
 
         histRef.current = [...histRef.current.slice(-(MAX_READINGS - 1)), { pos: filtered, acc }];
         setReadCount(histRef.current.length);

@@ -92,7 +92,7 @@ const [result, setResult] = useState<{ value: string; details: string } | null>(
   return (
     <div className="space-y-4">
       <Card>
-        <Select label="نوع العملية" value={mode} onChange={(e) => { setMode(e.target.value); setResult(null); }} options={MODES} />
+        <Select label="نوع العملية" value={mode} onChange={(e) => { setMode(e); setResult(null); }} options={MODES} />
         <Input label="
             {mode === 'pctOf' ? 'النسبة المئوية' : mode === 'pctChange' ? 'القيمة الجديدة' : 'الجزء'}
           " type="number" value={inputs['a'] || ''} onChange={(e) => handleInput('a', e.target.value)} placeholder="أدخل القيمة" />

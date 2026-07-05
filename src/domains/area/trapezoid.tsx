@@ -20,14 +20,14 @@ function computeBySides(a: number, b: number, L1: number, L2: number) {
   if (diff === 0) {
     const h = L1;
     const area = ((a + b) / 2) * h;
-    return { height: h, area, perimeter: a + b + L1 + L2, diag1: Math.sqrt(a * a + L1 * L1), diag2: Math.sqrt(b * b + L2 * L2), x: 0, h };
+    return { height: h, area, perimeter: a + b + L1 + L2, diag1: Math.sqrt(a * a + L1 * L1), diag2: Math.sqrt(b * b + L2 * L2), x: 0, h, L1, L2 };
   }
   const x = (diff * diff + L1 * L1 - L2 * L2) / (2 * diff);
   const hSq = L1 * L1 - x * x;
   if (hSq <= 0) return null;
   const h = Math.sqrt(hSq);
   const area = ((a + b) / 2) * h;
-  return { height: h, area, perimeter: a + b + L1 + L2, diag1: Math.sqrt((x + a) * (x + a) + h * h), diag2: Math.sqrt((b - x) * (b - x) + h * h), x, h };
+  return { height: h, area, perimeter: a + b + L1 + L2, diag1: Math.sqrt((x + a) * (x + a) + h * h), diag2: Math.sqrt((b - x) * (b - x) + h * h), x, h, L1, L2 };
 }
 
 function computeByHeight(a: number, b: number, h: number) {
@@ -116,7 +116,10 @@ export default function Trapezoid({ onSave, initialValues }: ToolProps) {
     }
     if (divResult) {
       const pendingExtra = `\n\n--- تقسيم شبه المنحرف ---\n${divResult}`;
-      usePendingSave.getState().set((p) => p ? { ...p, details: p.details + pendingExtra } : p);
+      const cur = usePendingSave.getState();
+      if (cur.data) {
+        cur.set({ ...cur.data, details: cur.data.details + pendingExtra });
+      }
     }
   };
 

@@ -95,7 +95,7 @@ const [method, setMethod] = useState('open');
   return (
     <div className="space-y-4">
       <Card>
-        <Select label="طريقة التركيب" value={method} onChange={(e) => setMethod(e.target.value)} options={INSTALL_METHODS} />
+        <Select label="طريقة التركيب" value={method} onChange={(e) => setMethod(e)} options={INSTALL_METHODS} />
         <Input label="تيار الحمل (أمبير)" type="number" value={inputs['current'] || ''} onChange={(e) => handleInput('current', e.target.value)} placeholder="أمبير" />
         <Input label="الجهد (فولت)" type="number" value={inputs['voltage'] || ''} onChange={(e) => handleInput('voltage', e.target.value)} placeholder="فولت" />
         <Input label="طول الكابل (متر)" type="number" value={inputs['length'] || ''} onChange={(e) => handleInput('length', e.target.value)} placeholder="متر" />

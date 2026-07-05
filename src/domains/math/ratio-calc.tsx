@@ -101,7 +101,7 @@ const [result, setResult] = useState<{ value: string; details: string } | null>(
   return (
     <div className="space-y-4">
       <Card>
-        <Select label="نوع العملية" value={mode} onChange={(e) => { setMode(e.target.value); setResult(null); }} options={MODES} />
+        <Select label="نوع العملية" value={mode} onChange={(e) => { setMode(e); setResult(null); }} options={MODES} />
         <Input label="أ" type="number" value={inputs['a'] || ''} onChange={(e) => handleInput('a', e.target.value)} />
         <Input label="ب" type="number" value={inputs['b'] || ''} onChange={(e) => handleInput('b', e.target.value)} />
         {mode !== 'simplify' && (

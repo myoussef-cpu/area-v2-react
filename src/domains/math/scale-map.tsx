@@ -104,9 +104,9 @@ const [unit, setUnit] = useState('m');
   return (
     <div className="space-y-4">
       <Card>
-        <Select label="وضع الحساب" value={mode} onChange={(e) => { setMode(e.target.value); setResult(null); }} options={MODES} />
+        <Select label="وضع الحساب" value={mode} onChange={(e) => { setMode(e); setResult(null); }} options={MODES} />
         {mode !== 'scale' && (
-          <Select label="وحدة المسافة" value={unit} onChange={(e) => setUnit(e.target.value)} options={DIST_UNITS} />
+          <Select label="وحدة المسافة" value={unit} onChange={(e) => setUnit(e)} options={DIST_UNITS} />
         )}
         {mode !== 'map' && (
           <Input label="المسافة الفعلية" type="number" value={inputs['actual'] || ''} onChange={(e) => handleInput('actual', e.target.value)} placeholder="المسافة الفعلية" />

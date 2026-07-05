@@ -12,7 +12,7 @@ interface AppBarProps {
 
 const BOTTOM_NAV_PAGES = ['/', '/calculator', '/saved'];
 
-export function AppBar({ sidebarOpen, onToggleSidebar, chatTitle }: AppBarProps) {
+export function AppBar({ onToggleSidebar, chatTitle }: AppBarProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { darkMode, toggleDarkMode } = useAppStore();

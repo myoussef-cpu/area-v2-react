@@ -7,7 +7,7 @@ type Op = '+' | '-' | '×' | '÷' | null;
 const KEYS = [
   ['AC', '÷'],
   ['7', '8', '9', '×'],
-  ['4', '5', '6', '−'],
+  ['4', '5', '6', '-'],
   ['1', '2', '3', '+'],
   ['0', '.', '⌫', '='],
 ] as const;
@@ -76,7 +76,7 @@ export function MiniCalculator() {
     const cur = parseFloat(display);
     if (prev === null) { setPrev(cur); }
     else if (op) {
-      const res = op === '+' ? prev + cur : op === '−' ? prev - cur : op === '×' ? prev * cur : op === '÷' ? (cur !== 0 ? prev / cur : 0) : cur;
+      const res = op === '+' ? prev + cur : op === '-' ? prev - cur : op === '×' ? prev * cur : op === '÷' ? (cur !== 0 ? prev / cur : 0) : cur;
       setDisplay(String(res)); setPrev(res);
     }
     setOp(nextOp); setWaiting(true);
@@ -85,14 +85,14 @@ export function MiniCalculator() {
   const calculate = useCallback(() => {
     if (prev === null || op === null) return;
     const cur = parseFloat(display);
-    let res = op === '+' ? prev + cur : op === '−' ? prev - cur : op === '×' ? prev * cur : op === '÷' ? (cur !== 0 ? prev / cur : 0) : cur;
+    let res = op === '+' ? prev + cur : op === '-' ? prev - cur : op === '×' ? prev * cur : op === '÷' ? (cur !== 0 ? prev / cur : 0) : cur;
     setDisplay(String(res)); setPrev(null); setOp(null); setWaiting(true);
   }, [display, prev, op]);
 
   const handleKey = useCallback((k: string) => {
     if (k === 'AC') clear();
     else if (k === '⌫') backspace();
-    else if (['+', '−', '×', '÷'].includes(k)) performOp(k as Op);
+    else if (['+', '-', '×', '÷'].includes(k)) performOp(k as Op);
     else if (k === '=') calculate();
     else if (k === '.') inputDot();
     else inputDigit(k);
@@ -152,7 +152,7 @@ export function MiniCalculator() {
     document.addEventListener('touchend', onUp);
   };
 
-  const isOperator = (k: string) => ['+', '−', '×', '÷'].includes(k);
+  const isOperator = (k: string) => ['+', '-', '×', '÷'].includes(k);
 
   return (
     <>

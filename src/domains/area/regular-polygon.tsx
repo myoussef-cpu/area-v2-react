@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Shapes, Ruler, Calculator, Hash } from 'lucide-react';
+import { Ruler, Calculator, Hash } from 'lucide-react';
 import { Card } from '../../shared/ui/card';
 import { Input } from '../../shared/ui/input';
 import { Button } from '../../shared/ui/button';
@@ -9,7 +9,7 @@ import { Geometry, toFixed } from '../../shared/lib/geometry';
 import { RegPolySVG } from '../../shared/lib/shapes';
 import { usePendingSave } from '../../shared/store/pending-save-store';
 import { useShapeCapture } from '../../shared/hooks/use-shape-capture';
-import type { ToolProps, CalculationData } from '../../shared/types';
+import type { ToolProps } from '../../shared/types';
 import { useToolInitializer } from '../../shared/hooks/use-tool-initializer';
 
 export default function RegularPolygon({ onSave, initialValues }: ToolProps) {

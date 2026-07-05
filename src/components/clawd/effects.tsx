@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { type JSX } from 'react'
 
 export interface SparkleProps {
   delay: number

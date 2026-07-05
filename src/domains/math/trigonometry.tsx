@@ -136,9 +136,9 @@ const [result, setResult] = useState<{ value: string; details: string } | null>(
   return (
     <div className="space-y-4">
       <Card>
-        <Select label="النوع" value={mode} onChange={(e) => { setMode(e.target.value); setResult(null); }} options={[{ label: 'حساب الدالة المثلثية', value: 'direct' }, { label: 'حساب الزاوية (عكسية)', value: 'inverse' }]} />
-        <Select label="وحدة الزاوية" value={angleUnit} onChange={(e) => setAngleUnit(e.target.value)} options={ANGLE_MODES} />
-        <Select label="الدالة" value={func} onChange={(e) => { setFunc(e.target.value); setResult(null); }} options={funcOptions} />
+        <Select label="النوع" value={mode} onChange={(e) => { setMode(e); setResult(null); }} options={[{ label: 'حساب الدالة المثلثية', value: 'direct' }, { label: 'حساب الزاوية (عكسية)', value: 'inverse' }]} />
+        <Select label="وحدة الزاوية" value={angleUnit} onChange={(e) => setAngleUnit(e)} options={ANGLE_MODES} />
+        <Select label="الدالة" value={func} onChange={(e) => { setFunc(e); setResult(null); }} options={funcOptions} />
         <Input
           label={mode === 'direct' ? 'الزاوية' : 'القيمة'}
           type="number" value={inputs['val'] || ''}

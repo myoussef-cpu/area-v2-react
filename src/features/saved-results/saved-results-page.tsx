@@ -8,7 +8,7 @@ import { cn } from '../../shared/lib/cn';
 import { ResultItem } from './result-item';
 
 export default function SavedResultsPage() {
-  const { results, removeResult, clearAll } = useResultsStore();
+  const { results, clearAll } = useResultsStore();
   const { deleteResult } = useResults();
   const user = useAuthStore((s) => s.user);
   const [search, setSearch] = useState('');

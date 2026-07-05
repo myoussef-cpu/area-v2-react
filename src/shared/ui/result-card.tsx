@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import { cn } from '../lib/cn';
 import { Card } from './card';
 import { useUnits } from '../hooks/use-units';
-import { AREA_UNITS, VOLUME_UNITS } from '../lib/units';
+
 
 interface ResultCardProps {
   title: string;

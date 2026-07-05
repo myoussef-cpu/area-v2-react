@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Circle, Ruler, Calculator, Box } from 'lucide-react';
+import { Circle, Ruler, Calculator } from 'lucide-react';
 import { Card } from '../../shared/ui/card';
 import { Input } from '../../shared/ui/input';
 import { Button } from '../../shared/ui/button';
@@ -7,7 +7,7 @@ import { ResultCard } from '../../shared/ui/result-card';
 import { useUnits } from '../../shared/hooks/use-units';
 import { Geometry, toFixed } from '../../shared/lib/geometry';
 import { usePendingSave } from '../../shared/store/pending-save-store';
-import type { ToolProps, CalculationData } from '../../shared/types';
+import type { ToolProps } from '../../shared/types';
 import { useToolInitializer } from '../../shared/hooks/use-tool-initializer';
 
 type Mode = 'cylinder' | 'sphere' | 'cone';

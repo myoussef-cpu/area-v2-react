@@ -102,13 +102,13 @@ export default function UnitConverter({ onSave, config }: ToolProps & { config: 
         <Select
           label="من"
           value={fromUnit}
-          onChange={(e) => setFromUnit(e.target.value)}
+          onChange={(e) => setFromUnit(e)}
           options={unitOptions}
         />
         <Select
           label="إلى"
           value={toUnit}
-          onChange={(e) => setToUnit(e.target.value)}
+          onChange={(e) => setToUnit(e)}
           options={unitOptions}
         />
         <Button onClick={calculate} className="w-full mt-4">تحويل</Button>

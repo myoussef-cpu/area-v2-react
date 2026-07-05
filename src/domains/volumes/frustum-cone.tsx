@@ -7,7 +7,7 @@ import { ResultCard } from '../../shared/ui/result-card';
 import { useUnits } from '../../shared/hooks/use-units';
 import { Geometry, toFixed } from '../../shared/lib/geometry';
 import { usePendingSave } from '../../shared/store/pending-save-store';
-import type { ToolProps, CalculationData } from '../../shared/types';
+import type { ToolProps } from '../../shared/types';
 import { useToolInitializer } from '../../shared/hooks/use-tool-initializer';
 
 export default function FrustumCone({ onSave, initialValues }: ToolProps) {

@@ -19,7 +19,7 @@ const SCI_BTNS = [
 const KEYS = [
   ['AC', '±', '%', '÷'],
   ['7', '8', '9', '×'],
-  ['4', '5', '6', '−'],
+  ['4', '5', '6', '-'],
   ['1', '2', '3', '+'],
   ['0', '.', '⌫', '='],
 ] as const;
@@ -102,7 +102,7 @@ export default function CalculatorPage() {
     const cur = parseFloat(display);
     if (prev === null) { setPrev(cur); setExpression(`${cur} ${nextOp}`); }
     else if (op) {
-      const res = op === '+' ? prev + cur : op === '−' ? prev - cur : op === '×' ? prev * cur : cur !== 0 ? prev / cur : 0;
+      const res = op === '+' ? prev + cur : op === '-' ? prev - cur : op === '×' ? prev * cur : cur !== 0 ? prev / cur : 0;
       setDisplay(formatNum(res)); setPrev(res); setExpression(`${formatNum(res)} ${nextOp}`);
     }
     setOp(nextOp); setWaiting(true);
@@ -111,7 +111,7 @@ export default function CalculatorPage() {
   const calculate = useCallback(() => {
     if (prev === null || op === null) return;
     const cur = parseFloat(display);
-    let res = op === '+' ? prev + cur : op === '−' ? prev - cur : op === '×' ? prev * cur : cur !== 0 ? prev / cur : 0;
+    let res = op === '+' ? prev + cur : op === '-' ? prev - cur : op === '×' ? prev * cur : cur !== 0 ? prev / cur : 0;
     const expr = `${prev} ${op} ${cur} = ${formatNum(res)}`;
     setHistory((h) => [expr, ...h].slice(0, 50));
     setDisplay(formatNum(res)); setExpression(expr);
@@ -129,13 +129,13 @@ export default function CalculatorPage() {
     else if (k === '⌫') backspace();
     else if (k === '±') toggleSign();
     else if (k === '%') percent();
-    else if (['+', '−', '×', '÷'].includes(k)) performOp(k as Op);
+    else if (['+', '-', '×', '÷'].includes(k)) performOp(k as Op);
     else if (k === '=') calculate();
     else if (k === '.') inputDot();
     else inputDigit(k);
   }, [clear, backspace, toggleSign, percent, performOp, calculate, inputDot, inputDigit]);
 
-  const isOperator = (k: string) => ['+', '−', '×', '÷'].includes(k);
+  const isOperator = (k: string) => ['+', '-', '×', '÷'].includes(k);
   const displayValue = display;
   const isSmall = displayValue.length > 9;
 

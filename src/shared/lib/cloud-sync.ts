@@ -6,6 +6,7 @@ export async function syncToCloud(
   userId: string,
   local: CalculationResult[],
 ): Promise<CalculationResult[]> {
+  if (!db) return local;
   const colRef = collection(db, 'users', userId, 'results');
 
   const unsynced = local.filter((r) => !r.cloudId);
@@ -43,6 +44,7 @@ export async function syncToCloud(
 }
 
 export async function deleteFromCloud(userId: string, cloudId: string) {
+  if (!db) return;
   try {
     await deleteDoc(doc(db, 'users', userId, 'results', cloudId));
   } catch { /* offline */ }

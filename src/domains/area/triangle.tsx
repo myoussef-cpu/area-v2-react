@@ -9,7 +9,7 @@ import { Geometry, toFixed } from '../../shared/lib/geometry';
 import { TriangleSVG } from '../../shared/lib/shapes';
 import { usePendingSave } from '../../shared/store/pending-save-store';
 import { useShapeCapture } from '../../shared/hooks/use-shape-capture';
-import type { ToolProps, CalculationData } from '../../shared/types';
+import type { ToolProps } from '../../shared/types';
 import { useToolInitializer } from '../../shared/hooks/use-tool-initializer';
 
 type Mode = 'base-height' | 'heron' | 'base-angles';

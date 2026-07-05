@@ -41,7 +41,7 @@ function dist(a: Pt, b: Pt) {
 function useShape(drawFn: (ctx: CanvasRenderingContext2D, w: number, h: number, p: typeof PAL.light) => void) {
   const cRef = useRef<HTMLDivElement>(null);
   const nRef = useRef<HTMLCanvasElement>(null);
-  const paintRef = useRef<() => void>();
+  const paintRef = useRef<() => void>(undefined);
 
   useEffect(() => {
     const c = cRef.current, n = nRef.current;
@@ -50,12 +50,12 @@ function useShape(drawFn: (ctx: CanvasRenderingContext2D, w: number, h: number, 
 
     function paint() {
       const dpr = window.devicePixelRatio || 1;
-      const w = c.clientWidth, h = c.clientHeight;
+      const w = c!.clientWidth, h = c!.clientHeight;
       if (w === 0 || h === 0) return;
-      n.width = w * dpr;
-      n.height = h * dpr;
-      n.style.width = w + 'px';
-      n.style.height = h + 'px';
+      n!.width = w * dpr;
+      n!.height = h * dpr;
+      n!.style.width = w + 'px';
+      n!.style.height = h + 'px';
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
       drawFn(ctx, w, h, isDark() ? PAL.dark : PAL.light);
@@ -154,8 +154,8 @@ export function TriangleSVG({ base, height, sideA, sideB, sideC, apexX, apexY, s
     ctx.fillStyle = pal.txt; ctx.font = `700 ${fs}px system-ui, -apple-system, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     const [bx] = t.xy([b / 2, 0]); const [, by2] = t.xy([ax, ay]);
     ctx.fillText('القاعدة = ' + toFixed(b), bx, by2 + (ay > 20 ? 22 : 16));
-    const [lx, ly] = lbl(t, p0, p2, 20); ctx.fillText(toFixed(sA), lx, ly);
-    const [rx, ry] = lbl(t, p1, p2, 20); ctx.fillText(toFixed(sB), rx, ry);
+    const [lx, ly] = lbl(t, p0, p2, 20); ctx.fillText(String(toFixed(sA)), lx, ly);
+    const [rx, ry] = lbl(t, p1, p2, 20); ctx.fillText(String(toFixed(sB)), rx, ry);
   }, [b, ax, ay, hVal, showHeight, sA, sB, vh]);
 
   const { cRef, nRef } = useShape(draw);
@@ -243,7 +243,7 @@ export function CircleSVG({ r }: CircleSVGProps) {
     ctx.fillStyle = pal.fill; ctx.fill();
     ctx.strokeStyle = pal.prim; ctx.lineWidth = 4; ctx.stroke();
 
-    const [rx] = t.x([rr, 0]);
+    const rx = t.x([rr, 0]);
     ctx.setLineDash([6, 4]); ctx.strokeStyle = pal.dim; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(rx, cy); ctx.stroke();
     ctx.setLineDash([]);
@@ -277,15 +277,13 @@ export function SectorSVG({ r, angle }: SectorSVGProps) {
     ctx.setLineDash([]);
 
     // sector arc
-    const startAngle = -Math.PI / 2;
-    const endAngle = startAngle + rad;
     ctx.beginPath(); ctx.moveTo(cx, cy);
     ctx.arc(cx, cy, rpx, -Math.PI / 2, -Math.PI / 2 + rad);
     ctx.closePath();
     ctx.fillStyle = pal.fill; ctx.fill();
     ctx.strokeStyle = pal.prim; ctx.lineWidth = 4; ctx.stroke();
 
-    const [rx] = t.x([rr, 0]);
+    const rx = t.x([rr, 0]);
     ctx.setLineDash([6, 4]); ctx.strokeStyle = pal.dim; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(rx, cy); ctx.stroke();
     ctx.setLineDash([]);
@@ -319,14 +317,14 @@ export function EllipseSVG({ a, b }: EllipseSVGProps) {
     ctx.fillStyle = pal.fill; ctx.fill();
     ctx.strokeStyle = pal.prim; ctx.lineWidth = 4; ctx.stroke();
 
-    const [lx] = t.x([-aa, 0]);
+    const lx = t.x([-aa, 0]);
     ctx.setLineDash([6, 4]); ctx.strokeStyle = pal.dim; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(lx, cy); ctx.lineTo(cx, cy); ctx.stroke();
     ctx.setLineDash([]);
     ctx.fillStyle = pal.dim; ctx.font = `700 ${dfs}px system-ui, -apple-system, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText('a = ' + toFixed(a), (cx + lx) / 2, cy + 22);
 
-    const [, ty] = t.y([0, bb]);
+    const ty = t.y([0, bb]);
     ctx.setLineDash([6, 4]); ctx.strokeStyle = pal.grn; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx, ty); ctx.stroke();
     ctx.setLineDash([]);
@@ -527,7 +525,7 @@ export function AnnulusSVG({ R, r }: AnnulusSVGProps) {
     ctx.beginPath(); ctx.arc(cx, cy, rpx2, 0, Math.PI * 2);
     ctx.strokeStyle = pal.dim; ctx.lineWidth = 4; ctx.stroke();
 
-    const [rx] = t.x([RR, 0]);
+    const rx = t.x([RR, 0]);
     ctx.setLineDash([6, 4]); ctx.strokeStyle = pal.grn; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(rx, cy); ctx.stroke();
     ctx.setLineDash([]);
@@ -535,7 +533,7 @@ export function AnnulusSVG({ R, r }: AnnulusSVGProps) {
     ctx.fillStyle = pal.grn; ctx.font = `700 ${dfs}px system-ui, -apple-system, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText('R = ' + toFixed(R), (cx + rx) / 2, cy + 22);
 
-    const [rx2] = t.x([rr, 0]);
+    const rx2 = t.x([rr, 0]);
     ctx.setLineDash([6, 4]); ctx.strokeStyle = pal.grn; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(rx2, cy); ctx.stroke();
     ctx.setLineDash([]);
@@ -575,7 +573,7 @@ export function IrregQuadSVG({ sides, diag }: IrregQuadSVGProps) {
     ctx.fillStyle = pal.txt; ctx.font = `700 ${fs}px system-ui, -apple-system, sans-serif`; ctx.textBaseline = 'middle';
     const labelSide = (p1: Pt, p2: Pt, val: number) => {
       const [lx, ly] = lbl(t, p1, p2, -20);
-      ctx.fillText(toFixed(val), lx, ly);
+      ctx.fillText(String(toFixed(val)), lx, ly);
     };
     labelSide(p0, p1, a); labelSide(p1, p2, b_s); labelSide(p2, p3, c); labelSide(p3, p0, d_s);
   }, [a, b_s, c, d_s, d, p0, p1, p2, p3]);
@@ -618,7 +616,7 @@ export function RegPolySVG({ n, r }: RegPolySVGProps) {
 
     if (nn < 9) {
       const [lx, ly] = lbl(t, pts[0], pts[1], -20);
-      ctx.fillText(toFixed(sideLen), lx, ly);
+      ctx.fillText(String(toFixed(sideLen)), lx, ly);
     }
   }, [nn, rr, sideLen, pts]);
 
@@ -653,7 +651,7 @@ export function CyclicQuadSVG({ sides }: CyclicQuadSVGProps) {
     ctx.fillStyle = pal.txt; ctx.font = `700 ${fs}px system-ui, -apple-system, sans-serif`; ctx.textBaseline = 'middle';
     const labelSide = (p1: Pt, p2: Pt, val: number) => {
       const [lx, ly] = lbl(t, p1, p2, -20);
-      ctx.fillText(toFixed(val), lx, ly);
+      ctx.fillText(String(toFixed(val)), lx, ly);
     };
     labelSide(pts[0], pts[1], a); labelSide(pts[1], pts[2], b);
     labelSide(pts[2], pts[3], c); labelSide(pts[3], pts[0], d);

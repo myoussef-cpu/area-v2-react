@@ -62,7 +62,7 @@ export default function AvgCalc({ onSave }: ToolProps) {
     usePendingSave.getState().set({
       toolId: 'avg-calc',
       toolName: 'المتوسط الحسابي',
-      inputs: Object.fromEntries(Object.entries(inputs).map(([k, v]) => [k, parseFloat(v || '0')])),
+      inputs: Object.fromEntries(Object.entries(input).map(([k, v]) => [k, parseFloat(v || '0')])),
       result: __v,
       details,
       unit: '',

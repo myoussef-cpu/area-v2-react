@@ -87,7 +87,7 @@ export default function ChatPage() {
   const messages = activeConversation?.messages ?? [];
   const chatTitle = activeConversation?.title;
 
-  const handleNewChatRef = useRef<() => void>();
+  const handleNewChatRef = useRef<() => void>(undefined);
   const handleSendRef = useRef<((input: string) => Promise<void>) | null>(null);
 
   const handleNewChat = useCallback(() => {

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { usePendingSave } from '../../shared/store/pending-save-store';
-import { Ruler, Calculator, Shovel } from 'lucide-react';
+import { Ruler, Calculator } from 'lucide-react';
 import { Card } from '../../shared/ui/card';
 import { Input } from '../../shared/ui/input';
 import { Select } from '../../shared/ui/select';
@@ -8,7 +8,7 @@ import { Button } from '../../shared/ui/button';
 import { ResultCard } from '../../shared/ui/result-card';
 import { useUnits } from '../../shared/hooks/use-units';
 import { toFixed } from '../../shared/lib/geometry';
-import type { ToolProps, CalculationData } from '../../shared/types';
+import type { ToolProps } from '../../shared/types';
 import { useToolInitializer } from '../../shared/hooks/use-tool-initializer';
 
 const SOIL_TYPES = [
@@ -79,7 +79,7 @@ const [result, setResult] = useState<{ value: string; details: string; rawValue?
           label="نوع التربة"
           options={SOIL_TYPES}
           value={inputs['slope'] || '1'}
-          onChange={(e) => handleInput('slope', e.target.value)}
+          onChange={(e) => handleInput('slope', e)}
         />
         <Button onClick={calculate} className="w-full mt-4">حساب</Button>
       </Card>

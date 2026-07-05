@@ -13,6 +13,7 @@ export function useAuth() {
   const reset = useAuthStore((s) => s.reset);
 
   const loginWithGoogle = useCallback(async () => {
+    if (!auth || !googleProvider) return;
     setLoading(true);
     try {
       const result = await signInWithPopup(auth, googleProvider);
@@ -31,6 +32,7 @@ export function useAuth() {
   }, [setUser, setLoading]);
 
   const logout = useCallback(async () => {
+    if (!auth) return;
     try {
       await signOut(auth);
     } finally {

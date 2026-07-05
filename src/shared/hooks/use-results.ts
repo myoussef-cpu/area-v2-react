@@ -34,7 +34,7 @@ export function useResults() {
 
       addResult(result);
 
-      if (user?.uid) {
+      if (user?.uid && db) {
         try {
           const docRef = await addDoc(collection(db, 'users', user.uid, 'results'), {
             ...result,
@@ -57,7 +57,7 @@ export function useResults() {
       const existing = results.find((r) => r.id === id);
       removeResult(id);
 
-      if (existing?.cloudId && user?.uid) {
+      if (existing?.cloudId && user?.uid && db) {
         try {
           await deleteDoc(doc(db, 'users', user.uid, 'results', existing.cloudId));
         } catch {

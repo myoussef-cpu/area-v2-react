@@ -115,20 +115,20 @@ const [distUnit, setDistUnit] = useState('m');
   return (
     <div className="space-y-4">
       <Card>
-        <Select label="وضع الحساب" value={mode} onChange={(e) => { setMode(e.target.value); setResult(null); }} options={MODES} />
+        <Select label="وضع الحساب" value={mode} onChange={(e) => { setMode(e); setResult(null); }} options={MODES} />
         {mode !== 'v' && (
           <Input label="السرعة" type="number" value={inputs['speed'] || ''} onChange={(e) => handleInput('speed', e.target.value)} placeholder="م/ث" />
         )}
         {mode !== 'd' && (
           <>
             <Input label="المسافة" type="number" value={inputs['distance'] || ''} onChange={(e) => handleInput('distance', e.target.value)} placeholder="المسافة" />
-            <Select label="وحدة المسافة" value={distUnit} onChange={(e) => setDistUnit(e.target.value)} options={DIST_UNITS} />
+            <Select label="وحدة المسافة" value={distUnit} onChange={(e) => setDistUnit(e)} options={DIST_UNITS} />
           </>
         )}
         {mode !== 't' && (
           <>
             <Input label="الزمن" type="number" value={inputs['time'] || ''} onChange={(e) => handleInput('time', e.target.value)} placeholder="الزمن" />
-            <Select label="وحدة الزمن" value={timeUnit} onChange={(e) => setTimeUnit(e.target.value)} options={TIME_UNITS} />
+            <Select label="وحدة الزمن" value={timeUnit} onChange={(e) => setTimeUnit(e)} options={TIME_UNITS} />
           </>
         )}
         <Button onClick={calculate} className="w-full mt-4">حساب</Button>

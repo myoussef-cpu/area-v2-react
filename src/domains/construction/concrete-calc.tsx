@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { usePendingSave } from '../../shared/store/pending-save-store';
-import { Ruler, Calculator, HardHat } from 'lucide-react';
+import { Ruler, Calculator } from 'lucide-react';
 import { Card } from '../../shared/ui/card';
 import { Input } from '../../shared/ui/input';
 import { Button } from '../../shared/ui/button';
 import { ResultCard } from '../../shared/ui/result-card';
 import { useUnits } from '../../shared/hooks/use-units';
 import { toFixed } from '../../shared/lib/geometry';
-import type { ToolProps, CalculationData } from '../../shared/types';
+import type { ToolProps } from '../../shared/types';
 import { useToolInitializer } from '../../shared/hooks/use-tool-initializer';
 
 type Mode = 'slab' | 'column' | 'footing' | 'beam';

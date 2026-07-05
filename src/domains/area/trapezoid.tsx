@@ -10,6 +10,7 @@ import { toFixed } from '../../shared/lib/geometry';
 import { TrapSVG } from '../../shared/lib/shapes';
 import { usePendingSave } from '../../shared/store/pending-save-store';
 import type { ToolProps } from '../../shared/types';
+import { useToolInitializer } from '../../shared/hooks/use-tool-initializer';
 
 type Mode = 'sides' | 'height';
 
@@ -39,13 +40,16 @@ function computeByHeight(a: number, b: number, h: number) {
   return { height: h, area, perimeter: a + b + L1 + L2, diag1: Math.sqrt((x + a) * (x + a) + h * h), diag2: Math.sqrt((b - x) * (b - x) + h * h), x, h, L1, L2 };
 }
 
-export default function Trapezoid({ onSave }: ToolProps) {
+export default function Trapezoid({ onSave, initialValues }: ToolProps) {
   const [mode, setMode] = useState<Mode>('sides');
-  const [inputs, setInputs] = useState<Record<string, string>>({});
+  const initInputs = useToolInitializer(initialValues);
+  const [inputs, setInputs] = useState<Record<string, string>>(initInputs);
   const [result, setResult] = useState<{ value: string; details: string; rawValue?: number } | null>(null);
   const [divMode, setDivMode] = useState<'manual' | 'auto'>('manual');
   const [divInput, setDivInput] = useState('');
   const [divResult, setDivResult] = useState<string | null>(null);
+  const [divBoundaries, setDivBoundaries] = useState<number[]>([]);
+  const [divDir, setDivDir] = useState<'x' | 'y'>('y');
   const { formatArea } = useUnits();
   const { shapeRef, capture } = useShapeCapture();
 
@@ -120,27 +124,100 @@ export default function Trapezoid({ onSave }: ToolProps) {
     if (!trapData) return;
     const { area, h } = trapData;
     const { a, b } = parsed;
+    const x0 = trapData.x;
     let parts: number[] = [];
-    if (divMode === 'manual') {
-      const vals = divInput.split(',').map(Number).filter((v) => v > 0);
-      if (vals.length === 0) return;
-      const total = vals.reduce((s, v) => s + v, 0);
-      parts = vals.map((v) => (v / total) * area);
-    } else {
+    const bounds: number[] = [];
+
+    const cumXArea = (xPos: number): number => {
+      const nSteps = 100; const dy = h / nSteps; let aSum = 0;
+      for (let j = 0; j < nSteps; j++) {
+        const y = (j + 0.5) * dy;
+        const xL = x0 * (y / h), xR = b + (x0 + a - b) * (y / h);
+        const sL = Math.max(0, xL), sR = Math.min(xPos, xR);
+        if (sR > sL) aSum += (sR - sL) * dy;
+      }
+      return aSum;
+    };
+    const findXForCum = (target: number): number => {
+      let lo = 0, hi = b;
+      for (let it = 0; it < 100; it++) {
+        const mid = (lo + hi) / 2;
+        if (cumXArea(mid) < target) lo = mid; else hi = mid;
+      }
+      return (lo + hi) / 2;
+    };
+    const stripAreasX = (): number[] => {
       const n = parseInt(divInput || '2', 10);
-      if (n < 2) return;
-      const stripH = h / n;
-      for (let i = 0; i < n; i++) {
-        const y1 = i * stripH;
-        const y2 = (i + 1) * stripH;
-        const w1 = a + (b - a) * (y1 / h);
-        const w2 = a + (b - a) * (y2 / h);
-        parts.push(((w1 + w2) / 2) * stripH);
+      if (n < 2) return [];
+      const xStops: number[] = [0];
+      for (let i = 1; i <= n; i++) xStops.push(i * b / n);
+      return xStops.slice(0, -1).map((xs, i) => {
+        const xE = xStops[i + 1]; let aSum = 0;
+        for (let j = 0; j < 100; j++) {
+          const y = (j + 0.5) * (h / 100);
+          const xL = x0 * (y / h), xR = b + (x0 + a - b) * (y / h);
+          const sL = Math.max(xs, xL), sR = Math.min(xE, xR);
+          if (sR > sL) aSum += (sR - sL) * (h / 100);
+        }
+        return aSum;
+      });
+    };
+
+    if (divDir === 'x') {
+      if (divMode === 'manual') {
+        const vals = divInput.split(',').map(Number).filter((v) => v > 0);
+        if (vals.length === 0) return;
+        const total = vals.reduce((s, v) => s + v, 0);
+        parts = vals.map((v) => (v / total) * area);
+        let cum = 0;
+        for (let i = 0; i < parts.length - 1; i++) {
+          cum += parts[i];
+          bounds.push(findXForCum(cum));
+        }
+      } else {
+        parts = stripAreasX();
+        if (parts.length < 2) return;
+        const n = parseInt(divInput || '2', 10);
+        for (let i = 1; i < n; i++) bounds.push(i * b / n);
+      }
+    } else {
+      if (divMode === 'manual') {
+        const vals = divInput.split(',').map(Number).filter((v) => v > 0);
+        if (vals.length === 0) return;
+        const total = vals.reduce((s, v) => s + v, 0);
+        parts = vals.map((v) => (v / total) * area);
+        let cum = 0;
+        for (let i = 0; i < parts.length - 1; i++) {
+          cum += parts[i];
+          const target = cum;
+          if (Math.abs(b - a) < 0.001) {
+            bounds.push(target / a);
+          } else {
+            const A = (b - a) / (2 * h);
+            const B = a;
+            const C = -target;
+            const disc = B * B - 4 * A * C;
+            if (disc >= 0) bounds.push((-B + Math.sqrt(disc)) / (2 * A));
+          }
+        }
+      } else {
+        const n = parseInt(divInput || '2', 10);
+        if (n < 2) return;
+        const stripH = h / n;
+        for (let i = 0; i < n; i++) {
+          const y1 = i * stripH;
+          const y2 = (i + 1) * stripH;
+          const w1 = a + (b - a) * (y1 / h);
+          const w2 = a + (b - a) * (y2 / h);
+          parts.push(((w1 + w2) / 2) * stripH);
+        }
+        for (let i = 1; i < n; i++) bounds.push(i * stripH);
       }
     }
     const divLines = parts.map((p, i) => `الجزء ${i + 1}: ${formatArea(p)}`).join('\n');
     const divText = `${divLines}\nالمجموع: ${formatArea(parts.reduce((s, v) => s + v, 0))}`;
     setDivResult(divText);
+    setDivBoundaries(bounds);
     const mainResult = result?.value || formatArea(trapData.area);
     const mainDetails = result?.details || `المساحة = ${mainResult} م²`;
     const combined = mainDetails + `\n\n--- تقسيم شبه المنحرف ---\n${divText}`;
@@ -174,13 +251,14 @@ export default function Trapezoid({ onSave }: ToolProps) {
   };
 
   const svgProps = useMemo(() => {
+    const base = divBoundaries.length > 0 ? { divBoundaries, divDir } : { divDir };
     if (mode === 'sides') {
-      if (!trapData) return { a: 4, b: 8, h: 4, x: 2, L1: 5, L2: 5 };
-      return { a: parsed.a, b: parsed.b, h: trapData.h, x: trapData.x, L1: parsed.L1, L2: parsed.L2 };
+      if (!trapData) return { a: 4, b: 8, h: 4, x: 2, L1: 5, L2: 5, ...base };
+      return { a: parsed.a, b: parsed.b, h: trapData.h, x: trapData.x, L1: parsed.L1, L2: parsed.L2, ...base };
     }
-    if (!trapData) return { a: 4, b: 8, h: 4, x: 2, L1: 5, L2: 5 };
-    return { a: parsed.a, b: parsed.b, h: trapData.h, x: trapData.x, L1: trapData.L1, L2: trapData.L2 };
-  }, [mode, trapData, parsed]);
+    if (!trapData) return { a: 4, b: 8, h: 4, x: 2, L1: 5, L2: 5, ...base };
+    return { a: parsed.a, b: parsed.b, h: trapData.h, x: trapData.x, L1: trapData.L1, L2: trapData.L2, ...base };
+  }, [mode, trapData, parsed, divBoundaries, divDir]);
 
   return (
     <div className="space-y-4">
@@ -222,6 +300,10 @@ export default function Trapezoid({ onSave }: ToolProps) {
       {trapData && (
         <Card>
           <h3 className="mb-3 text-sm font-bold">تقسيم شبه المنحرف</h3>
+          <div className="mb-2 flex gap-2">
+            <Button variant={divDir === 'y' ? 'primary' : 'secondary'} size="sm" onClick={() => setDivDir('y')}> Y (أفقي)</Button>
+            <Button variant={divDir === 'x' ? 'primary' : 'secondary'} size="sm" onClick={() => setDivDir('x')}> X (عمودي)</Button>
+          </div>
           <div className="mb-3 flex gap-2">
             <Button variant={divMode === 'manual' ? 'primary' : 'secondary'} size="sm" onClick={() => setDivMode('manual')}>يدوي</Button>
             <Button variant={divMode === 'auto' ? 'primary' : 'secondary'} size="sm" onClick={() => setDivMode('auto')}>تلقائي</Button>

@@ -7,16 +7,18 @@ import { Button } from '../../shared/ui/button';
 import { ResultCard } from '../../shared/ui/result-card';
 import { usePendingSave } from '../../shared/store/pending-save-store';
 import type { ToolProps } from '../../shared/types';
+import { useToolInitializer } from '../../shared/hooks/use-tool-initializer';
 
 const PHASE_OPTIONS = [
   { label: 'أحادي الطور', value: 'single' },
   { label: 'ثلاثي الطور', value: 'three' },
 ];
 
-export default function ElecPower({ onSave }: ToolProps) {
+export default function ElecPower({ onSave, initialValues }: ToolProps) {
   const [phase, setPhase] = useState('single');
-  const [inputs, setInputs] = useState<Record<string, string>>({});
-  const [result, setResult] = useState<{ value: string; details: string } | null>(null);
+  const initInputs = useToolInitializer(initialValues);
+  const [inputs, setInputs] = useState<Record<string, string>>(initInputs);
+const [result, setResult] = useState<{ value: string; details: string } | null>(null);
 
   const handleInput = (key: string, value: string) => {
     setInputs((prev) => ({ ...prev, [key]: value }));

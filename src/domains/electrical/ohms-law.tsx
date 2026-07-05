@@ -7,6 +7,7 @@ import { Button } from '../../shared/ui/button';
 import { ResultCard } from '../../shared/ui/result-card';
 import { usePendingSave } from '../../shared/store/pending-save-store';
 import type { ToolProps } from '../../shared/types';
+import { useToolInitializer } from '../../shared/hooks/use-tool-initializer';
 
 const MODES = [
   { label: 'حساب التيار (I = V/R)', value: 'I' },
@@ -14,10 +15,11 @@ const MODES = [
   { label: 'حساب المقاومة (R = V/I)', value: 'R' },
 ];
 
-export default function OhmsLaw({ onSave }: ToolProps) {
+export default function OhmsLaw({ onSave, initialValues }: ToolProps) {
   const [mode, setMode] = useState('I');
-  const [inputs, setInputs] = useState<Record<string, string>>({});
-  const [result, setResult] = useState<{ value: string; details: string } | null>(null);
+  const initInputs = useToolInitializer(initialValues);
+  const [inputs, setInputs] = useState<Record<string, string>>(initInputs);
+const [result, setResult] = useState<{ value: string; details: string } | null>(null);
 
   const handleInput = (key: string, value: string) => {
     setInputs((prev) => ({ ...prev, [key]: value }));

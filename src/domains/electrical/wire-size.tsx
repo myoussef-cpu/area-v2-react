@@ -7,6 +7,7 @@ import { Button } from '../../shared/ui/button';
 import { ResultCard } from '../../shared/ui/result-card';
 import { usePendingSave } from '../../shared/store/pending-save-store';
 import type { ToolProps } from '../../shared/types';
+import { useToolInitializer } from '../../shared/hooks/use-tool-initializer';
 
 const INSTALL_METHODS = [
   { label: 'في الهواء الطلق', value: 'open' },
@@ -32,9 +33,10 @@ const CABLE_TABLE = [
   { size: 240, ampacity: { open: 425, conduit: 350, underground: 475 } },
 ];
 
-export default function WireSize({ onSave }: ToolProps) {
-  const [inputs, setInputs] = useState<Record<string, string>>({});
-  const [method, setMethod] = useState('open');
+export default function WireSize({ onSave, initialValues }: ToolProps) {
+  const initInputs = useToolInitializer(initialValues);
+  const [inputs, setInputs] = useState<Record<string, string>>(initInputs);
+const [method, setMethod] = useState('open');
   const [result, setResult] = useState<{ value: string; details: string } | null>(null);
 
   const handleInput = (key: string, value: string) => {

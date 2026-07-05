@@ -7,14 +7,16 @@ import { Button } from '../../shared/ui/button';
 import { ResultCard } from '../../shared/ui/result-card';
 import { toFixed } from '../../shared/lib/geometry';
 import type { ToolProps, CalculationData } from '../../shared/types';
+import { useToolInitializer } from '../../shared/hooks/use-tool-initializer';
 
 const STEEL_DENSITY = 7850;
 
 const STANDARD_BARS = [6, 8, 10, 12, 14, 16, 18, 20, 22, 25, 28, 32, 36, 40];
 
-export default function SteelWeight({ onSave }: ToolProps) {
-  const [inputs, setInputs] = useState<Record<string, string>>({});
-  const [result, setResult] = useState<{ value: string; details: string } | null>(null);
+export default function SteelWeight({ onSave, initialValues }: ToolProps) {
+  const initInputs = useToolInitializer(initialValues);
+  const [inputs, setInputs] = useState<Record<string, string>>(initInputs);
+const [result, setResult] = useState<{ value: string; details: string } | null>(null);
 
   const handleInput = (key: string, value: string) => {
     setInputs((prev) => ({ ...prev, [key]: value }));

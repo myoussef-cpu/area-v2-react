@@ -9,6 +9,7 @@ import { ResultCard } from '../../shared/ui/result-card';
 import { useUnits } from '../../shared/hooks/use-units';
 import { toFixed } from '../../shared/lib/geometry';
 import type { ToolProps, CalculationData } from '../../shared/types';
+import { useToolInitializer } from '../../shared/hooks/use-tool-initializer';
 
 const SOIL_TYPES = [
   { value: '1', label: 'تربة عادية - ١:١ (45°)' },
@@ -17,9 +18,10 @@ const SOIL_TYPES = [
   { value: '0', label: 'تربة صخرية - بدون ميل' },
 ];
 
-export default function Excavation({ onSave }: ToolProps) {
-  const [inputs, setInputs] = useState<Record<string, string>>({});
-  const [result, setResult] = useState<{ value: string; details: string; rawValue?: number } | null>(null);
+export default function Excavation({ onSave, initialValues }: ToolProps) {
+  const initInputs = useToolInitializer(initialValues);
+  const [inputs, setInputs] = useState<Record<string, string>>(initInputs);
+const [result, setResult] = useState<{ value: string; details: string; rawValue?: number } | null>(null);
   const { formatVolume } = useUnits();
 
   const handleInput = (key: string, value: string) => {

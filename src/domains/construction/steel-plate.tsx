@@ -7,6 +7,7 @@ import { Button } from '../../shared/ui/button';
 import { ResultCard } from '../../shared/ui/result-card';
 import { toFixed } from '../../shared/lib/geometry';
 import type { ToolProps, CalculationData } from '../../shared/types';
+import { useToolInitializer } from '../../shared/hooks/use-tool-initializer';
 
 const MATERIALS: Record<string, { label: string; density: number }> = {
   steel: { label: 'صلب (Steel)', density: 7850 },
@@ -16,9 +17,10 @@ const MATERIALS: Record<string, { label: string; density: number }> = {
   brass: { label: 'براص (Brass)', density: 8500 },
 };
 
-export default function SteelPlate({ onSave }: ToolProps) {
-  const [inputs, setInputs] = useState<Record<string, string>>({});
-  const [result, setResult] = useState<{ value: string; details: string } | null>(null);
+export default function SteelPlate({ onSave, initialValues }: ToolProps) {
+  const initInputs = useToolInitializer(initialValues);
+  const [inputs, setInputs] = useState<Record<string, string>>(initInputs);
+const [result, setResult] = useState<{ value: string; details: string } | null>(null);
   const [material, setMaterial] = useState('steel');
 
   const handleInput = (key: string, value: string) => {

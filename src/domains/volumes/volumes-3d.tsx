@@ -8,12 +8,14 @@ import { useUnits } from '../../shared/hooks/use-units';
 import { Geometry, toFixed } from '../../shared/lib/geometry';
 import { usePendingSave } from '../../shared/store/pending-save-store';
 import type { ToolProps, CalculationData } from '../../shared/types';
+import { useToolInitializer } from '../../shared/hooks/use-tool-initializer';
 
 type Mode = 'cylinder' | 'sphere' | 'cone';
 
-export default function Volumes3d({ onSave }: ToolProps) {
-  const [inputs, setInputs] = useState<Record<string, string>>({});
-  const [result, setResult] = useState<{ value: string; details: string; rawValue?: number } | null>(null);
+export default function Volumes3d({ onSave, initialValues }: ToolProps) {
+  const initInputs = useToolInitializer(initialValues);
+  const [inputs, setInputs] = useState<Record<string, string>>(initInputs);
+const [result, setResult] = useState<{ value: string; details: string; rawValue?: number } | null>(null);
   const [mode, setMode] = useState<Mode>('cylinder');
   const { formatVolume } = useUnits();
 

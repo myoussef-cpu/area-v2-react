@@ -8,10 +8,12 @@ import { ResultCard } from '../../shared/ui/result-card';
 import { useUnits } from '../../shared/hooks/use-units';
 import { toFixed } from '../../shared/lib/geometry';
 import type { ToolProps, CalculationData } from '../../shared/types';
+import { useToolInitializer } from '../../shared/hooks/use-tool-initializer';
 
-export default function LandLeveling({ onSave }: ToolProps) {
-  const [inputs, setInputs] = useState<Record<string, string>>({});
-  const [result, setResult] = useState<{ value: string; details: string; rawValue?: number } | null>(null);
+export default function LandLeveling({ onSave, initialValues }: ToolProps) {
+  const initInputs = useToolInitializer(initialValues);
+  const [inputs, setInputs] = useState<Record<string, string>>(initInputs);
+const [result, setResult] = useState<{ value: string; details: string; rawValue?: number } | null>(null);
   const { formatVolume } = useUnits();
 
   const handleInput = (key: string, value: string) => {

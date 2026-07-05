@@ -7,6 +7,7 @@ import { Button } from '../../shared/ui/button';
 import { ResultCard } from '../../shared/ui/result-card';
 import { toFixed } from '../../shared/lib/geometry';
 import type { ToolProps, CalculationData } from '../../shared/types';
+import { useToolInitializer } from '../../shared/hooks/use-tool-initializer';
 
 const TILE_SIZES = [
   { label: '20 × 20 سم', w: 0.2, h: 0.2, perBox: 25 },
@@ -16,9 +17,10 @@ const TILE_SIZES = [
   { label: '60 × 60 سم', w: 0.6, h: 0.6, perBox: 6 },
 ];
 
-export default function TilesCalc({ onSave }: ToolProps) {
-  const [inputs, setInputs] = useState<Record<string, string>>({});
-  const [result, setResult] = useState<{ value: string; details: string } | null>(null);
+export default function TilesCalc({ onSave, initialValues }: ToolProps) {
+  const initInputs = useToolInitializer(initialValues);
+  const [inputs, setInputs] = useState<Record<string, string>>(initInputs);
+const [result, setResult] = useState<{ value: string; details: string } | null>(null);
   const [tileIdx, setTileIdx] = useState(2);
 
   const handleInput = (key: string, value: string) => {

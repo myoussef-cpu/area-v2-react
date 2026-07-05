@@ -8,12 +8,14 @@ import { ResultCard } from '../../shared/ui/result-card';
 import { useUnits } from '../../shared/hooks/use-units';
 import { toFixed } from '../../shared/lib/geometry';
 import type { ToolProps, CalculationData } from '../../shared/types';
+import { useToolInitializer } from '../../shared/hooks/use-tool-initializer';
 
 type Mode = 'slab' | 'column' | 'footing' | 'beam';
 
-export default function ConcreteCalc({ onSave }: ToolProps) {
-  const [inputs, setInputs] = useState<Record<string, string>>({});
-  const [result, setResult] = useState<{ value: string; details: string; rawValue?: number } | null>(null);
+export default function ConcreteCalc({ onSave, initialValues }: ToolProps) {
+  const initInputs = useToolInitializer(initialValues);
+  const [inputs, setInputs] = useState<Record<string, string>>(initInputs);
+const [result, setResult] = useState<{ value: string; details: string; rawValue?: number } | null>(null);
   const [mode, setMode] = useState<Mode>('slab');
   const { formatVolume } = useUnits();
 

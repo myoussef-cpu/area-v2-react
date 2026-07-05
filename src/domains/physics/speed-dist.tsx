@@ -6,6 +6,7 @@ import { Select } from '../../shared/ui/select';
 import { Button } from '../../shared/ui/button';
 import { ResultCard } from '../../shared/ui/result-card';
 import type { ToolProps } from '../../shared/types';
+import { useToolInitializer } from '../../shared/hooks/use-tool-initializer';
 import { usePendingSave } from '../../shared/store/pending-save-store';
 
 const MODES = [
@@ -28,10 +29,11 @@ const TIME_UNITS = [
 const TIME_TO_S = { s: 1, min: 60, hr: 3600 };
 const DIST_TO_M = { m: 1, km: 1000 };
 
-export default function SpeedDist({ onSave }: ToolProps) {
+export default function SpeedDist({ onSave, initialValues }: ToolProps) {
   const [mode, setMode] = useState('v');
-  const [inputs, setInputs] = useState<Record<string, string>>({});
-  const [distUnit, setDistUnit] = useState('m');
+  const initInputs = useToolInitializer(initialValues);
+  const [inputs, setInputs] = useState<Record<string, string>>(initInputs);
+const [distUnit, setDistUnit] = useState('m');
   const [timeUnit, setTimeUnit] = useState('s');
   const [result, setResult] = useState<{ value: string; details: string } | null>(null);
 

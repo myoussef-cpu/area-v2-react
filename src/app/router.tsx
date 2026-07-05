@@ -10,6 +10,9 @@ const SavedResultsPage = lazy(() => import('../features/saved-results/saved-resu
 const SettingsPage = lazy(() => import('../pages/settings-page'));
 const LoginPage = lazy(() => import('../pages/login-page'));
 const NotFoundPage = lazy(() => import('../pages/not-found-page'));
+const ChatPage = lazy(() => import('../features/chat/chat-page'));
+const ScanPage = lazy(() => import('../features/scan/scan-page'));
+const GpsMeasurePage = lazy(() => import('../features/gps-measure/gps-measure-page'));
 
 export const router = createBrowserRouter([
   {
@@ -22,6 +25,9 @@ export const router = createBrowserRouter([
       { path: 'calculator', element: <CalculatorPage /> },
       { path: 'saved', element: <SavedResultsPage /> },
       { path: 'settings', element: <SettingsPage /> },
+      { path: 'chat', element: <ChatPage /> },
+      { path: 'scan', element: <ScanPage /> },
+      { path: 'gps-measure', element: <GpsMeasurePage /> },
       { path: 'login', element: <LoginPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],

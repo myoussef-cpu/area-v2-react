@@ -10,12 +10,14 @@ import { TriangleSVG } from '../../shared/lib/shapes';
 import { usePendingSave } from '../../shared/store/pending-save-store';
 import { useShapeCapture } from '../../shared/hooks/use-shape-capture';
 import type { ToolProps, CalculationData } from '../../shared/types';
+import { useToolInitializer } from '../../shared/hooks/use-tool-initializer';
 
 type Mode = 'base-height' | 'heron' | 'base-angles';
 
-export default function TriangleTool({ onSave }: ToolProps) {
-  const [inputs, setInputs] = useState<Record<string, string>>({});
-  const [result, setResult] = useState<{ value: string; details: string; rawValue?: number } | null>(null);
+export default function TriangleTool({ onSave, initialValues }: ToolProps) {
+  const initInputs = useToolInitializer(initialValues);
+  const [inputs, setInputs] = useState<Record<string, string>>(initInputs);
+const [result, setResult] = useState<{ value: string; details: string; rawValue?: number } | null>(null);
   const [mode, setMode] = useState<Mode>('base-height');
   const { formatArea } = useUnits();
   const { shapeRef, capture } = useShapeCapture();

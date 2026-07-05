@@ -10,6 +10,16 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    proxy: {
+      '/api/nvidia': {
+        target: 'https://integrate.api.nvidia.com',
+        changeOrigin: true,
+        rewrite: (p) => p.replace(/^\/api\/nvidia/, ''),
+      },
+
+    },
+  },
   plugins: [
     react(),
     tailwindcss(),

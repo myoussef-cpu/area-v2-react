@@ -6,6 +6,7 @@ import { Select } from '../../shared/ui/select';
 import { Button } from '../../shared/ui/button';
 import { ResultCard } from '../../shared/ui/result-card';
 import type { ToolProps } from '../../shared/types';
+import { useToolInitializer } from '../../shared/hooks/use-tool-initializer';
 import { usePendingSave } from '../../shared/store/pending-save-store';
 
 const MODES = [
@@ -14,10 +15,11 @@ const MODES = [
   { label: 'تبسيط النسبة', value: 'simplify' },
 ];
 
-export default function RatioCalc({ onSave }: ToolProps) {
+export default function RatioCalc({ onSave, initialValues }: ToolProps) {
   const [mode, setMode] = useState('direct');
-  const [inputs, setInputs] = useState<Record<string, string>>({});
-  const [result, setResult] = useState<{ value: string; details: string } | null>(null);
+  const initInputs = useToolInitializer(initialValues);
+  const [inputs, setInputs] = useState<Record<string, string>>(initInputs);
+const [result, setResult] = useState<{ value: string; details: string } | null>(null);
 
   const handleInput = (key: string, value: string) => {
     setInputs((prev) => ({ ...prev, [key]: value }));

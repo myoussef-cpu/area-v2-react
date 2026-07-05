@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { getToolById } from '../domains/registry';
 import { useResults } from '../shared/hooks/use-results';
 import { usePendingSave } from '../shared/store/pending-save-store';
 import type { CalculationData } from '../shared/types';
 
-const TOOL_COMPONENTS: Record<string, React.LazyExoticComponent<React.ComponentType<{ onSave: (d: CalculationData) => void }>>> = {
+const TOOL_COMPONENTS: Record<string, React.LazyExoticComponent<React.ComponentType<{ onSave: (d: CalculationData) => void; initialValues?: Record<string, number> }>>> = {
   trapezoid: React.lazy(() => import('../domains/area/trapezoid')),
   triangle: React.lazy(() => import('../domains/area/triangle')),
   'circle-sector': React.lazy(() => import('../domains/area/circle-sector')),
@@ -60,6 +60,8 @@ const TOOL_COMPONENTS: Record<string, React.LazyExoticComponent<React.ComponentT
 
 export default function ToolPage() {
   const { id } = useParams<{ id: string }>();
+  const location = useLocation();
+  const initialValues = (location.state as { initialValues?: Record<string, number> })?.initialValues;
   const { saveResult } = useResults();
   const toolDef = id ? getToolById(id) : undefined;
 
@@ -104,7 +106,7 @@ export default function ToolPage() {
           <p className="text-sm text-[#8e8e93]">{toolDef.description}</p>
         </div>
       </div>
-      <ToolComponent onSave={handleSave} />
+      <ToolComponent onSave={handleSave} initialValues={initialValues} />
     </div>
   );
 }

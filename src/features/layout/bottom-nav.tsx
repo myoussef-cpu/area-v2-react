@@ -1,14 +1,17 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LayoutGrid, Calculator, History } from 'lucide-react';
+import { LayoutGrid, Calculator, History, MessageCircle, Scan, MapPin } from 'lucide-react';
 import { cn } from '../../shared/lib/cn';
 
 const NAV_ITEMS = [
   { path: '/', icon: LayoutGrid, label: 'الرئيسية', id: 'nav-main' },
   { path: '/calculator', icon: Calculator, label: 'الآلة', id: 'nav-calc' },
   { path: '/saved', icon: History, label: 'المحفوظات', id: 'nav-saved' },
+  { path: '/scan', icon: Scan, label: 'الماسح', id: 'nav-scan' },
+  { path: '/gps-measure', icon: MapPin, label: 'GPS', id: 'nav-gps' },
+  { path: '/chat', icon: MessageCircle, label: 'الدردشة', id: 'nav-chat' },
 ];
 
-const BOTTOM_NAV_PAGES = ['/', '/calculator', '/saved'];
+const BOTTOM_NAV_PAGES = ['/', '/calculator', '/saved', '/scan', '/gps-measure'];
 
 export function BottomNav() {
   const navigate = useNavigate();
@@ -33,31 +36,31 @@ export function BottomNav() {
       {NAV_ITEMS.map((item) => {
         const active = isActive(item.path);
         return (
-          <button
-            key={item.id}
-            onClick={() => navigate(item.path)}
-            className={cn(
-              'flex flex-1 items-center justify-center gap-0 rounded-2xl py-2.5 text-[#8e8e93] dark:text-[#8e8e93]',
-              'transition-all duration-300',
-              active && 'gap-2 bg-primary/10 text-primary dark:bg-primary/15 dark:text-[#5ac8fa]'
-            )}
-          >
-            <item.icon
+<button
+              key={item.id}
+              onClick={() => navigate(item.path)}
               className={cn(
-                'h-4.5 w-4.5 shrink-0 transition-transform duration-300',
-                active && 'scale-110 -translate-y-0.5'
-              )}
-              strokeWidth={active ? 2.5 : 2}
-            />
-            <span
-              className={cn(
-                'max-w-0 overflow-hidden whitespace-nowrap text-xs font-semibold opacity-0 transition-all duration-300',
-                active && 'max-w-20 opacity-100'
+                'flex flex-1 items-center justify-center gap-0 rounded-2xl py-2.5 text-[#8e8e93] dark:text-[#8e8e93]',
+                'transition-all duration-300',
+                active && 'gap-2 bg-primary/10 text-primary dark:bg-primary/15 dark:text-[#5ac8fa]'
               )}
             >
-              {item.label}
-            </span>
-          </button>
+              <item.icon
+                className={cn(
+                  'h-4.5 w-4.5 shrink-0 transition-transform duration-300',
+                  active && 'scale-110 -translate-y-0.5'
+                )}
+                strokeWidth={active ? 2.5 : 2}
+              />
+              <span
+                className={cn(
+                  'max-w-0 overflow-hidden whitespace-nowrap text-xs font-semibold opacity-0 transition-all duration-300',
+                  active && 'max-w-20 opacity-100'
+                )}
+              >
+                {item.label}
+              </span>
+            </button>
         );
       })}
     </nav>

@@ -339,9 +339,9 @@ export function EllipseSVG({ a, b }: EllipseSVGProps) {
 }
 
 // ---------- Trapezoid ----------
-interface TrapSVGProps { a: number; b: number; h: number; x: number; L1?: number; L2?: number; }
+interface TrapSVGProps { a: number; b: number; h: number; x: number; L1?: number; L2?: number; divBoundaries?: number[]; divDir?: 'x' | 'y'; }
 
-export function TrapSVG({ a, b, h, x, L1, L2 }: TrapSVGProps) {
+export function TrapSVG({ a, b, h, x, L1, L2, divBoundaries, divDir = 'y' }: TrapSVGProps) {
   const aa = Math.max(a, 1), bb = Math.max(b, 1), hh = Math.max(h, 1);
   const pts: Pt[] = [[0, 0], [bb, 0], [x + aa, -hh], [x, -hh]];
 
@@ -366,7 +366,39 @@ export function TrapSVG({ a, b, h, x, L1, L2 }: TrapSVGProps) {
 
     if (L1 != null) { ctx.textAlign = 'start'; ctx.fillText('L₁ = ' + toFixed(L1), hx1 - 18, (t.y([x, 0]) + hy2) / 2 + 18); }
     if (L2 != null) { ctx.textAlign = 'start'; ctx.fillText('L₂ = ' + toFixed(L2), t.x([x + aa, 0]) + 12, (t.y([x, 0]) + hy2) / 2 + 18); }
-  }, [aa, bb, hh, x, L1, L2]);
+
+    if (divBoundaries && divBoundaries.length > 0) {
+      ctx.strokeStyle = pal.grn; ctx.lineWidth = 2; ctx.setLineDash([5, 4]);
+      if (divDir === 'x') {
+        for (const X of divBoundaries) {
+          if (X <= 0 || X >= bb) continue;
+          const bot = t.xy([X, 0]);
+          let topY: number;
+          if (X >= x && X <= x + aa) {
+            topY = -hh;
+          } else if (X < x) {
+            if (x > 0) topY = -hh * X / x; else continue;
+          } else {
+            const den = bb - x - aa;
+            if (den > 0) topY = -hh * (bb - X) / den; else continue;
+          }
+          const top = t.xy([X, topY]);
+          ctx.beginPath(); ctx.moveTo(top[0], top[1]); ctx.lineTo(bot[0], bot[1]); ctx.stroke();
+        }
+      } else {
+        for (const y1 of divBoundaries) {
+          const svgY = y1 - hh;
+          const xL = x * (1 - y1 / hh);
+          const xR = bb + (x + aa - bb) * (1 - y1 / hh);
+          ctx.beginPath();
+          ctx.moveTo(t.x([xL, svgY]), t.y([xL, svgY]));
+          ctx.lineTo(t.x([xR, svgY]), t.y([xR, svgY]));
+          ctx.stroke();
+        }
+      }
+      ctx.setLineDash([]);
+    }
+  }, [aa, bb, hh, x, L1, L2, divBoundaries, divDir]);
 
   const { cRef, nRef } = useShape(draw);
   return <ZoomableShape><div ref={cRef} className="h-64 w-full max-w-lg mx-auto"><canvas ref={nRef} className="w-full h-full" /></div></ZoomableShape>;

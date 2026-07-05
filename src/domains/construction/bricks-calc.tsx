@@ -7,6 +7,7 @@ import { Button } from '../../shared/ui/button';
 import { ResultCard } from '../../shared/ui/result-card';
 import { toFixed } from '../../shared/lib/geometry';
 import type { ToolProps, CalculationData } from '../../shared/types';
+import { useToolInitializer } from '../../shared/hooks/use-tool-initializer';
 
 const BRICK_TYPES: Record<string, { label: string; l: number; h: number; t: number; mortar: number }> = {
   '6': { label: 'طوب 6 سم', l: 0.25, h: 0.06, t: 0.12, mortar: 0.01 },
@@ -16,9 +17,10 @@ const BRICK_TYPES: Record<string, { label: string; l: number; h: number; t: numb
   '25': { label: 'طوب 25 سم', l: 0.25, h: 0.25, t: 0.12, mortar: 0.01 },
 };
 
-export default function BricksCalc({ onSave }: ToolProps) {
-  const [inputs, setInputs] = useState<Record<string, string>>({});
-  const [result, setResult] = useState<{ value: string; details: string } | null>(null);
+export default function BricksCalc({ onSave, initialValues }: ToolProps) {
+  const initInputs = useToolInitializer(initialValues);
+  const [inputs, setInputs] = useState<Record<string, string>>(initInputs);
+const [result, setResult] = useState<{ value: string; details: string } | null>(null);
   const [brickKey, setBrickKey] = useState('10');
 
   const handleInput = (key: string, value: string) => {

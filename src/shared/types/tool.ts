@@ -28,6 +28,7 @@ export interface ToolInput {
 
 export interface ToolProps {
   onSave: (data: CalculationData) => void;
+  initialValues?: Record<string, number>;
 }
 
 export interface CalculationData {

@@ -7,6 +7,7 @@ import { Button } from '../../shared/ui/button';
 import { ResultCard } from '../../shared/ui/result-card';
 import { usePendingSave } from '../../shared/store/pending-save-store';
 import type { ToolProps } from '../../shared/types';
+import { useToolInitializer } from '../../shared/hooks/use-tool-initializer';
 
 const MATERIAL_OPTIONS = [
   { label: 'نحاس (Copper)', value: 'copper' },
@@ -15,9 +16,10 @@ const MATERIAL_OPTIONS = [
 
 const RESISTIVITY = { copper: 0.0178, aluminum: 0.029 };
 
-export default function VoltDrop({ onSave }: ToolProps) {
-  const [inputs, setInputs] = useState<Record<string, string>>({});
-  const [material, setMaterial] = useState('copper');
+export default function VoltDrop({ onSave, initialValues }: ToolProps) {
+  const initInputs = useToolInitializer(initialValues);
+  const [inputs, setInputs] = useState<Record<string, string>>(initInputs);
+const [material, setMaterial] = useState('copper');
   const [result, setResult] = useState<{ value: string; details: string } | null>(null);
 
   const handleInput = (key: string, value: string) => {
